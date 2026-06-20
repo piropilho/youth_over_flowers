@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Demo Passport — Hana Q-Local</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Courier New', monospace;
+    padding: 24px;
+  }
+  .hint {
+    margin-bottom: 16px;
+    font-family: sans-serif;
+    font-size: 13px;
+    color: #555;
+    text-align: center;
+  }
+  .passport {
+    width: 340px;
+    background: #1a2e5a;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+
+  /* Cover strip */
+  .cover {
+    background: linear-gradient(160deg, #1a3a8c 0%, #0d1f54 100%);
+    padding: 24px 24px 20px;
+    text-align: center;
+    border-bottom: 2px solid #c8a84b;
+    position: relative;
+  }
+  .emblem {
+    font-size: 40px;
+    margin-bottom: 6px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  }
+  .country-ko {
+    color: #f0d080;
+    font-size: 13px;
+    font-family: sans-serif;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 2px;
+  }
+  .country-en {
+    color: #c8a84b;
+    font-size: 10px;
+    font-family: sans-serif;
+    letter-spacing: 4px;
+  }
+  .passport-word {
+    color: #ffffff;
+    font-size: 18px;
+    font-family: sans-serif;
+    font-weight: 300;
+    letter-spacing: 8px;
+    margin-top: 8px;
+  }
+
+  /* Data page */
+  .data-page {
+    background: #f5f0e8;
+    padding: 16px;
+  }
+
+  /* Top section: photo + fields */
+  .top-section {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .photo-box {
+    width: 90px;
+    height: 110px;
+    background: #d0c8b8;
+    border: 1px solid #aaa;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    border-radius: 3px;
+  }
+  .fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+  .field-label {
+    font-size: 7px;
+    color: #1a3a8c;
+    letter-spacing: 1px;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .field-value {
+    font-size: 12px;
+    color: #111;
+    font-family: sans-serif;
+    font-weight: 600;
+    border-bottom: 0.5px solid #bbb;
+    padding-bottom: 2px;
+  }
+
+  /* QR + bottom fields row */
+  .bottom-section {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .qr-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .qr-wrap canvas {
+    border: 3px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .qr-label {
+    font-size: 7px;
+    color: #666;
+    font-family: sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .extra-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  /* MRZ */
+  .mrz {
+    background: #e8e2d4;
+    border-top: 1px solid #ccc;
+    padding: 10px 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5px;
+    color: #111;
+    line-height: 1.7;
+    letter-spacing: 1px;
+    word-break: break-all;
+  }
+  .mrz-label {
+    font-size: 7px;
+    color: #1a3a8c;
+    font-family: sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+
+<p class="hint">📱 이 화면을 스캔하거나 인쇄해서 사용하세요</p>
+
+<div class="passport">
+  <!-- Cover -->
+  <div class="cover">
+    <div class="emblem">🇰🇷</div>
+    <div class="country-ko">대 한 민 국</div>
+    <div class="country-en">REPUBLIC OF KOREA</div>
+    <div class="passport-word">PASSPORT</div>
+  </div>
+
+  <!-- Data page -->
+  <div class="data-page">
+
+    <!-- Photo + main fields -->
+    <div class="top-section">
+      <div class="photo-box">👤</div>
+      <div class="fields">
+        <div class="field">
+          <span class="field-label">Surname / 성</span>
+          <span class="field-value">KIM</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Given names / 이름</span>
+          <span class="field-value">MINJUN</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Nationality / 국적</span>
+          <span class="field-value">KOREAN</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Date of birth / 생년월일</span>
+          <span class="field-value">15 MAR 1995</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Sex / 성별</span>
+          <span class="field-value">M</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- QR + extra fields -->
+    <div class="bottom-section">
+      <div class="qr-wrap">
+        <canvas id="qr"></canvas>
+        <span class="qr-label">SCAN TO VERIFY</span>
+      </div>
+      <div class="extra-fields">
+        <div class="field">
+          <span class="field-label">Passport No. / 여권번호</span>
+          <span class="field-value">M12345678</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Date of issue / 발급일</span>
+          <span class="field-value">10 JAN 2020</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Date of expiry / 만료일</span>
+          <span class="field-value">09 JAN 2030</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Place of issue / 발급지</span>
+          <span class="field-value">SEOUL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MRZ -->
+    <div class="mrz">
+      <div class="mrz-label">Machine Readable Zone</div>
+      P&lt;KORKIM&lt;&lt;MINJUN&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>
+      M123456781KOR9503151M3001099&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;08
+    </div>
+  </div>
+</div>
+
+<script>
+  QRCode.toCanvas(document.getElementById('qr'), 'HANA_QLOCAL_PASSPORT_DEMO', {
+    width: 90,
+    margin: 1,
+    color: { dark: '#111111', light: '#ffffff' }
+  });
+</script>
+</body>
+</html>
