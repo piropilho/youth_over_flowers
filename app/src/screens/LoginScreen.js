@@ -26,7 +26,7 @@ export default function LoginScreen({ navigation }) {
           source={require('../../assets/hana-symbol.png')}
           style={styles.headerLogo}
         />
-        <AppText style={styles.headerTitle}>HANA Q-Local</AppText>
+        <AppText style={styles.headerTitle}>HANA <AppText style={{ color: '#E90061' }}>EZPZ</AppText></AppText>
       </View>
 
       {/* Body */}
@@ -45,7 +45,7 @@ export default function LoginScreen({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="PASSWORD"
-          placeholderTextColor={COLORS.textGray}
+          placeholderTextColor={COLORS  .textGray}
           secureTextEntry
           value={password}
           onChangeText={setPassword}

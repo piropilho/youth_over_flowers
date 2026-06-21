@@ -27,7 +27,7 @@ export default function SplashScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <HanaLogo size={120} />
-      <AppText style={styles.title}>Hana Q-Local</AppText>
+      <AppText style={styles.title}>HANA EZPZ</AppText>
       <AppText style={styles.subtitle}>Korea Travel Wallet</AppText>
     </View>
   );

@@ -10,6 +10,8 @@ import PassportScanScreen from '../screens/PassportScanScreen';
 import FaceScanScreen from '../screens/FaceScanScreen';
 import FaceScanCameraScreen from '../screens/FaceScanCameraScreen';
 import VerificationCompleteScreen from '../screens/VerificationCompleteScreen';
+import HomeScreen from '../screens/HomeScreen';
+import TravelPlanScreen from '../screens/TravelPlanScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +27,8 @@ export default function AppNavigator() {
         <Stack.Screen name="FaceScan" component={FaceScanScreen} />
         <Stack.Screen name="FaceScanCamera" component={FaceScanCameraScreen} />
         <Stack.Screen name="VerificationComplete" component={VerificationCompleteScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="TravelPlan" component={TravelPlanScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

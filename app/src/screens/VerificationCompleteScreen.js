@@ -50,7 +50,7 @@ export default function VerificationCompleteScreen({ navigation }) {
       {/* Bottom */}
       <View style={styles.bottom}>
         <AnimatedButton style={styles.button} onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.buttonText}>로그인하러 가기</Text>
+          <Text style={styles.buttonText}>메인 화면으로</Text>
         </AnimatedButton>
         <TouchableOpacity>
           <Text style={styles.helpText}>도움이 필요하신가요? 지원센터 문의</Text>

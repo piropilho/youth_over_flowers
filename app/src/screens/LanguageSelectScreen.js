@@ -10,11 +10,12 @@ import AppText from '../components/AppText';
 import AnimatedButton from '../components/AnimatedButton';
 import CountryFlag from 'react-native-country-flag';
 import { COLORS } from '../constants/colors';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const LANGUAGES = [
   { id: 'zh-CN', label: '中文 (简体)', sub: 'Chinese Simplified', isoCode: 'CN' },
   { id: 'ja',    label: '日本語',      sub: 'Japanese',           isoCode: 'JP' },
-  { id: 'zh-TW', label: '繁體中文',    sub: 'Traditional Chinese', isoCode: 'TW' },
+  { id: 'ko',    label: '한국어',       sub: 'Korean',              isoCode: 'KR' },
   { id: 'en',    label: 'English',    sub: 'English',             isoCode: 'GB' },
 ];
 
@@ -23,10 +24,15 @@ export default function LanguageSelectScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.bgTop} />
+      <LinearGradient
+        colors={['#EEEEEE', '#6FCF97', '#2FA084', '#1F6F5F']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.bgTop}
+      />
 
       <Image source={require('../../assets/hana_satto.png')} style={styles.character} />
-      <AppText style={styles.headerTitle}>Hana Q-Local</AppText>
+      <AppText style={styles.headerTitle}>HANA EZPZ</AppText>
       <AppText style={styles.headerSubtitle}>Korea Travel Wallet</AppText>
 
       <View style={styles.card}>
@@ -74,15 +80,14 @@ export default function LanguageSelectScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: 'transparent',
   },
   bgTop: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: 320,
-    backgroundColor: '#008485',
+    bottom: 0,
   },
   character: {
     position: 'absolute',
