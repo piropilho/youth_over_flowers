@@ -239,7 +239,7 @@ export default function TravelPlanScreen({ navigation, route }) {
         </View>
 
         <View style={styles.bottom}>
-          {departDate && returnDate && (
+          {!!(departDate && returnDate) && (
             <TouchableOpacity
               style={styles.confirmBtn}
               activeOpacity={0.85}

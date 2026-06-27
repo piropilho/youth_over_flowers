@@ -15,7 +15,6 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { COLORS } from '../constants/colors';
 import AnimatedButton from '../components/AnimatedButton';
 
-const AnimatedPath = Animated.createAnimatedComponent(Path);
 const CHECK_PATH   = 'M 35 100 L 75 138 L 170 55';
 const CHECK_LENGTH = 185;
 
@@ -26,14 +25,16 @@ const CAM_HEIGHT = Math.round(CAM_WIDTH * 0.72);
 export default function PassportScanScreen({ navigation }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning] = useState(false);
+  const [checkOffset, setCheckOffset] = useState(CHECK_LENGTH);
   const scanAnim   = useRef(new Animated.Value(0)).current;
   const checkAnim  = useRef(new Animated.Value(CHECK_LENGTH)).current;
 
-  const checkDashOffset = checkAnim.interpolate({
-    inputRange:  [0, CHECK_LENGTH],
-    outputRange: [0, CHECK_LENGTH],
-    extrapolate: 'clamp',
-  });
+  useEffect(() => {
+    const id = checkAnim.addListener(({ value }) => {
+      setCheckOffset(Math.max(0, Math.min(value, CHECK_LENGTH)));
+    });
+    return () => checkAnim.removeListener(id);
+  }, []);
 
   useEffect(() => {
     Animated.loop(
@@ -117,7 +118,7 @@ export default function PassportScanScreen({ navigation }) {
           {scanning && (
             <View style={styles.successOverlay}>
               <Svg width={200} height={200} viewBox="0 0 200 200">
-                <AnimatedPath
+                <Path
                   d={CHECK_PATH}
                   stroke="white"
                   strokeWidth={14}
@@ -125,7 +126,7 @@ export default function PassportScanScreen({ navigation }) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeDasharray={CHECK_LENGTH}
-                  strokeDashoffset={checkDashOffset}
+                  strokeDashoffset={checkOffset}
                 />
               </Svg>
             </View>

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Audio } from 'expo-av';
 import { COLORS } from '../constants/colors';
 import AnimatedButton from '../components/AnimatedButton';
 
@@ -20,8 +21,6 @@ const RING_R     = CAM_SIZE / 2 + 8;
 const SVG_SIZE   = RING_R * 2 + 14;
 const CIRCUMFERENCE = 2 * Math.PI * RING_R;
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-const AnimatedPath   = Animated.createAnimatedComponent(Path);
 
 // 체크 경로: M 35 100 → 75 138 → 170 55 (200×200 viewBox 기준)
 const CHECK_PATH   = 'M 35 100 L 75 138 L 170 55';
@@ -40,19 +39,30 @@ export default function FaceScanCameraScreen({ navigation }) {
   const progressAnim = useRef(new Animated.Value(0)).current;
   const checkAnim    = useRef(new Animated.Value(CHECK_LENGTH)).current;
 
-  const strokeDashoffset = progressAnim.interpolate({
-    inputRange:  [0, 1],
-    outputRange: [CIRCUMFERENCE, 0],
-  });
-
-  const checkDashOffset = checkAnim.interpolate({
-    inputRange:  [0, CHECK_LENGTH],
-    outputRange: [0, CHECK_LENGTH],
-    extrapolate: 'clamp',
-  });
+  const [progressOffset, setProgressOffset] = useState(CIRCUMFERENCE);
+  const [checkOffset, setCheckOffset] = useState(CHECK_LENGTH);
+  const soundRef = useRef(null);
 
   useEffect(() => {
     if (!permission?.granted) requestPermission();
+  }, []);
+
+  useEffect(() => {
+    return () => { soundRef.current?.unloadAsync(); };
+  }, []);
+
+  useEffect(() => {
+    const id = progressAnim.addListener(({ value }) => {
+      setProgressOffset(CIRCUMFERENCE * (1 - value));
+    });
+    return () => progressAnim.removeListener(id);
+  }, []);
+
+  useEffect(() => {
+    const id = checkAnim.addListener(({ value }) => {
+      setCheckOffset(Math.max(0, Math.min(value, CHECK_LENGTH)));
+    });
+    return () => checkAnim.removeListener(id);
   }, []);
 
   const startScan = () => {
@@ -75,6 +85,12 @@ export default function FaceScanCameraScreen({ navigation }) {
       if (finished) {
         clearInterval(timer);
         setCountdown(0);
+        Audio.Sound.createAsync(
+          require('../../assets/success_sound.mp3')
+        ).then(({ sound }) => {
+          soundRef.current = sound;
+          sound.playAsync();
+        });
         checkAnim.setValue(CHECK_LENGTH);
         Animated.timing(checkAnim, {
           toValue: 0,
@@ -112,11 +128,11 @@ export default function FaceScanCameraScreen({ navigation }) {
               stroke="#E8E8E8" strokeWidth={5} fill="none"
             />
             {scanning && (
-              <AnimatedCircle
+              <Circle
                 cx={SVG_SIZE / 2} cy={SVG_SIZE / 2} r={RING_R}
                 stroke={COLORS.primary} strokeWidth={5} fill="none"
                 strokeDasharray={CIRCUMFERENCE}
-                strokeDashoffset={strokeDashoffset}
+                strokeDashoffset={progressOffset}
                 strokeLinecap="round"
                 rotation="-90"
                 origin={`${SVG_SIZE / 2}, ${SVG_SIZE / 2}`}
@@ -139,7 +155,7 @@ export default function FaceScanCameraScreen({ navigation }) {
                   <Text style={styles.countdownText}>{countdown}</Text>
                 ) : (
                   <Svg width={200} height={200} viewBox="0 0 200 200">
-                    <AnimatedPath
+                    <Path
                       d={CHECK_PATH}
                       stroke="white"
                       strokeWidth={14}
@@ -147,7 +163,7 @@ export default function FaceScanCameraScreen({ navigation }) {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeDasharray={CHECK_LENGTH}
-                      strokeDashoffset={checkDashOffset}
+                      strokeDashoffset={checkOffset}
                     />
                   </Svg>
                 )}
