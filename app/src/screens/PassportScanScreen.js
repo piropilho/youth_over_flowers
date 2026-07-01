@@ -22,12 +22,17 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CAM_WIDTH = SCREEN_WIDTH - 48;
 const CAM_HEIGHT = Math.round(CAM_WIDTH * 0.72);
 
+const BACKEND_URL = 'http://192.168.35.200:8000';
+
 export default function PassportScanScreen({ navigation }) {
   const [permission, requestPermission] = useCameraPermissions();
-  const [scanning, setScanning] = useState(false);
+  const [phase, setPhase] = useState('idle'); // 'idle' | 'processing' | 'success'
+  const [errorMsg, setErrorMsg] = useState(null);
   const [checkOffset, setCheckOffset] = useState(CHECK_LENGTH);
-  const scanAnim   = useRef(new Animated.Value(0)).current;
-  const checkAnim  = useRef(new Animated.Value(CHECK_LENGTH)).current;
+  const cameraRef = useRef(null);
+  const scanAnim  = useRef(new Animated.Value(0)).current;
+  const checkAnim = useRef(new Animated.Value(CHECK_LENGTH)).current;
+  const scanLoop  = useRef(null);
 
   useEffect(() => {
     const id = checkAnim.addListener(({ value }) => {
@@ -37,44 +42,64 @@ export default function PassportScanScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    Animated.loop(
+    const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(scanAnim, { toValue: 1, duration: 2500, useNativeDriver: true }),
         Animated.timing(scanAnim, { toValue: 0, duration: 0,    useNativeDriver: true }),
       ])
-    ).start();
+    );
+    scanLoop.current = loop;
+    loop.start();
   }, []);
 
   useEffect(() => {
-    if (!permission?.granted) return;
-    const delay = setTimeout(startScan, 800);
-    return () => clearTimeout(delay);
-  }, [permission?.granted]);
+    if (!permission?.granted) requestPermission();
+  }, []);
 
   const scanY = scanAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [0, CAM_HEIGHT - 2],
   });
 
-  const startScan = () => {
-    setTimeout(() => {
-      setScanning(true);
-      checkAnim.setValue(CHECK_LENGTH);
-      Animated.timing(checkAnim, {
-        toValue: 0,
-        duration: 750,
-        easing: Easing.out(Easing.elastic(1.2)),
-        useNativeDriver: false,
-      }).start();
-      setTimeout(() => {
-        navigation.navigate('FaceScan');
-      }, 1500);
-    }, 3000);
+  const showSuccess = (passportData) => {
+    scanLoop.current?.stop();
+    setPhase('success');
+    checkAnim.setValue(CHECK_LENGTH);
+    Animated.timing(checkAnim, {
+      toValue: 0,
+      duration: 750,
+      easing: Easing.out(Easing.elastic(1.2)),
+      useNativeDriver: false,
+    }).start();
+    setTimeout(() => navigation.navigate('PassportConfirm', { passportData }), 1500);
   };
 
-  const handleButton = async () => {
+  const handleCapture = async () => {
     if (!permission?.granted) {
       await requestPermission();
+      return;
+    }
+    setPhase('processing');
+    setErrorMsg(null);
+
+    try {
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.8, base64: true });
+      const res = await fetch(`${BACKEND_URL}/scan/passport`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: photo.base64 }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showSuccess(data.data);
+      } else {
+        setPhase('idle');
+        setErrorMsg(data.message || 'MRZ를 인식하지 못했습니다. 다시 시도해주세요.');
+      }
+    } catch (e) {
+      setPhase('idle');
+      setErrorMsg('서버 연결에 실패했습니다. 네트워크를 확인해주세요.');
     }
   };
 
@@ -95,7 +120,7 @@ export default function PassportScanScreen({ navigation }) {
         {/* Camera Box */}
         <View style={[styles.cameraBox, { width: CAM_WIDTH, height: CAM_HEIGHT }]}>
           {permission?.granted ? (
-            <CameraView style={StyleSheet.absoluteFill} facing="back" />
+            <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
           ) : (
             <View style={[StyleSheet.absoluteFill, styles.camPlaceholder]} />
           )}
@@ -106,17 +131,21 @@ export default function PassportScanScreen({ navigation }) {
           <View style={[styles.corner, styles.cornerBL]} />
           <View style={[styles.corner, styles.cornerBR]} />
 
-          {/* Scan line */}
-          <Animated.View style={[styles.scanLine, { transform: [{ translateY: scanY }] }]} />
+          {/* Scan line — success 단계에서 숨김 */}
+          {phase !== 'success' && (
+            <Animated.View style={[styles.scanLine, { transform: [{ translateY: scanY }] }]} />
+          )}
 
           {/* Label */}
-          <View style={styles.scanLabelBox}>
-            <Text style={styles.scanLabel}>+ 스캔 중</Text>
-          </View>
+          {phase === 'idle' && (
+            <View style={styles.scanLabelBox}>
+              <Text style={styles.scanLabel}>+ 스캔 중</Text>
+            </View>
+          )}
 
           {/* Success overlay */}
-          {scanning && (
-            <View style={styles.successOverlay}>
+          {phase === 'success' && (
+            <View style={[styles.successOverlay, { width: CAM_WIDTH, height: CAM_HEIGHT }]}>
               <Svg width={200} height={200} viewBox="0 0 200 200">
                 <Path
                   d={CHECK_PATH}
@@ -146,13 +175,22 @@ export default function PassportScanScreen({ navigation }) {
 
       {/* Bottom */}
       <View style={styles.bottom}>
-        {scanning ? (
+        {errorMsg && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          </View>
+        )}
+        {phase === 'processing' ? (
           <View style={[styles.button, styles.buttonDisabled]}>
             <Text style={styles.buttonText}>인식 중...</Text>
           </View>
+        ) : phase === 'success' ? (
+          <View style={[styles.button, styles.buttonDisabled]}>
+            <Text style={styles.buttonText}>인식 완료</Text>
+          </View>
         ) : (
-          <AnimatedButton style={styles.button} onPress={handleButton}>
-            <Text style={styles.buttonText}>직접 촬영하기</Text>
+          <AnimatedButton style={styles.button} onPress={handleCapture}>
+            <Text style={styles.buttonText}>{errorMsg ? '다시 촬영하기' : '촬영하기'}</Text>
           </AnimatedButton>
         )}
         <TouchableOpacity>
@@ -311,6 +349,18 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     gap: 12,
   },
+  errorBox: {
+    backgroundColor: '#FFF0F0',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  errorText: {
+    fontFamily: 'Hana2-Regular',
+    fontSize: 13,
+    color: '#D0302F',
+    textAlign: 'center',
+  },
   button: {
     backgroundColor: COLORS.primary,
     borderRadius: 14,
@@ -321,7 +371,9 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   successOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(0, 132, 133, 0.72)',

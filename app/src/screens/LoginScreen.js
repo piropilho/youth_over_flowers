@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   View,
+  Text,
   Image,
   TextInput,
   StyleSheet,
@@ -19,7 +20,7 @@ export default function LoginScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-        <AppText style={styles.backBtnText}>‹</AppText>
+        <Text style={styles.backBtnText}>‹</Text>
       </TouchableOpacity>
       <View style={styles.header}>
         <Image
@@ -74,9 +75,6 @@ export default function LoginScreen({ navigation }) {
         <AnimatedButton style={styles.loginButton} onPress={() => navigation.navigate('Verification')}>
           <AppText style={styles.loginText}>Login</AppText>
         </AnimatedButton>
-        <TouchableOpacity>
-          <AppText style={styles.altLogin}>다른 방법으로 로그인</AppText>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -195,10 +193,5 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 16,
     fontWeight: '700',
-  },
-  altLogin: {
-    textAlign: 'center',
-    fontSize: 13,
-    color: COLORS.textGray,
   },
 });

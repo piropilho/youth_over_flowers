@@ -8,12 +8,14 @@ import {
   Dimensions,
   Animated,
   Easing,
+  Alert,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { Audio } from 'expo-av';
 import { COLORS } from '../constants/colors';
 import AnimatedButton from '../components/AnimatedButton';
+
+const BACKEND_URL = 'http://192.168.35.200:8000';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CAM_SIZE   = SCREEN_WIDTH - 64;
@@ -26,29 +28,20 @@ const CIRCUMFERENCE = 2 * Math.PI * RING_R;
 const CHECK_PATH   = 'M 35 100 L 75 138 L 170 55';
 const CHECK_LENGTH = 185;
 
-const TIPS = [
-  '밝은 곳에서 얼굴 전체가 화면 안에 들어오게 위치하세요',
-  '안경, 마스크, 모자를 벗어주세요',
-  '얼굴 인식이 완료되면 자동으로 회원가입이 완료돼요',
-];
 
 export default function FaceScanCameraScreen({ navigation }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning]   = useState(false);
   const [countdown, setCountdown] = useState(3);
+  const [errorMsg, setErrorMsg]   = useState(null);
+  const cameraRef    = useRef(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
   const checkAnim    = useRef(new Animated.Value(CHECK_LENGTH)).current;
 
   const [progressOffset, setProgressOffset] = useState(CIRCUMFERENCE);
   const [checkOffset, setCheckOffset] = useState(CHECK_LENGTH);
-  const soundRef = useRef(null);
-
   useEffect(() => {
     if (!permission?.granted) requestPermission();
-  }, []);
-
-  useEffect(() => {
-    return () => { soundRef.current?.unloadAsync(); };
   }, []);
 
   useEffect(() => {
@@ -65,8 +58,21 @@ export default function FaceScanCameraScreen({ navigation }) {
     return () => checkAnim.removeListener(id);
   }, []);
 
+  const showSuccess = () => {
+    setCountdown(0);
+    checkAnim.setValue(CHECK_LENGTH);
+    Animated.timing(checkAnim, {
+      toValue: 0,
+      duration: 750,
+      easing: Easing.out(Easing.elastic(1.2)),
+      useNativeDriver: false,
+    }).start();
+    setTimeout(() => navigation.navigate('VerificationComplete'), 1500);
+  };
+
   const startScan = () => {
     setScanning(true);
+    setErrorMsg(null);
     setCountdown(3);
     progressAnim.setValue(0);
 
@@ -81,26 +87,28 @@ export default function FaceScanCameraScreen({ navigation }) {
       toValue: 1,
       duration: 3000,
       useNativeDriver: false,
-    }).start(({ finished }) => {
-      if (finished) {
-        clearInterval(timer);
-        setCountdown(0);
-        Audio.Sound.createAsync(
-          require('../../assets/success_sound.mp3')
-        ).then(({ sound }) => {
-          soundRef.current = sound;
-          sound.playAsync();
+    }).start(async ({ finished }) => {
+      if (!finished) return;
+      clearInterval(timer);
+
+      try {
+        const photo = await cameraRef.current.takePictureAsync({ quality: 0.7, base64: true });
+        const res = await fetch(`${BACKEND_URL}/scan/face`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: photo.base64 }),
         });
-        checkAnim.setValue(CHECK_LENGTH);
-        Animated.timing(checkAnim, {
-          toValue: 0,
-          duration: 750,
-          easing: Easing.out(Easing.elastic(1.2)),
-          useNativeDriver: false,
-        }).start();
-        setTimeout(() => {
-          navigation.navigate('VerificationComplete');
-        }, 1500);
+        const data = await res.json();
+
+        if (data.success && data.face_detected) {
+          showSuccess();
+        } else {
+          setScanning(false);
+          setErrorMsg(data.message || '얼굴이 감지되지 않았습니다. 다시 시도해주세요.');
+        }
+      } catch (e) {
+        setScanning(false);
+        setErrorMsg(`오류: ${e?.message || String(e)}`);
       }
     });
   };
@@ -143,7 +151,7 @@ export default function FaceScanCameraScreen({ navigation }) {
           {/* Circular camera */}
           <View style={styles.cameraWrap}>
             {permission?.granted ? (
-              <CameraView style={StyleSheet.absoluteFill} facing="front" />
+              <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="front" />
             ) : (
               <View style={[StyleSheet.absoluteFill, styles.camPlaceholder]} />
             )}
@@ -172,28 +180,22 @@ export default function FaceScanCameraScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Tips */}
-        <View style={styles.tipBox}>
-          {TIPS.map((tip, i) => (
-            <View key={i} style={[styles.tipRow, i < TIPS.length - 1 && styles.tipRowBorder]}>
-              <View style={styles.tipNum}>
-                <Text style={styles.tipNumText}>{i + 1}</Text>
-              </View>
-              <Text style={styles.tipText}>{tip}</Text>
-            </View>
-          ))}
-        </View>
       </View>
 
       {/* Bottom */}
       <View style={styles.bottom}>
+        {errorMsg && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          </View>
+        )}
         {scanning ? (
           <View style={[styles.button, styles.buttonDisabled]}>
             <Text style={styles.buttonText}>인식 중...</Text>
           </View>
         ) : (
           <AnimatedButton style={styles.button} onPress={startScan}>
-            <Text style={styles.buttonText}>스캔 시작하기</Text>
+            <Text style={styles.buttonText}>{errorMsg ? '다시 시도하기' : '스캔 시작하기'}</Text>
           </AnimatedButton>
         )}
         <TouchableOpacity>
@@ -272,7 +274,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#111',
   },
   countdownOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: CAM_SIZE,
+    height: CAM_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(0,0,0,0.35)',
@@ -284,44 +290,6 @@ const styles = StyleSheet.create({
     fontSize: 72,
     fontFamily: 'Hana2-Bold',
     color: COLORS.white,
-  },
-  tipBox: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    width: '100%',
-  },
-  tipRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    gap: 14,
-  },
-  tipRowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#EBEBEB',
-  },
-  tipNum: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: COLORS.primaryLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  tipNumText: {
-    fontFamily: 'Hana2-Bold',
-    fontSize: 12,
-    color: COLORS.primary,
-  },
-  tipText: {
-    flex: 1,
-    fontFamily: 'Hana2-Regular',
-    fontSize: 13,
-    color: COLORS.textDark,
-    lineHeight: 19,
   },
   bottom: {
     paddingHorizontal: 24,
@@ -347,6 +315,18 @@ const styles = StyleSheet.create({
     fontFamily: 'Hana2-Regular',
     fontSize: 13,
     color: COLORS.textGray,
+    textAlign: 'center',
+  },
+  errorBox: {
+    backgroundColor: '#FFF0F0',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  errorText: {
+    fontFamily: 'Hana2-Regular',
+    fontSize: 13,
+    color: '#D0302F',
     textAlign: 'center',
   },
 });

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
+    "name": "HANA EZPZ",
+    "slug": "hana-ezpz",
     "version": "1.0.0",
     "platforms": [
       "ios",
@@ -12,7 +12,15 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hana.ezpz",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "여권 스캔 및 본인 인증을 위해 카메라를 사용합니다.",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -28,6 +36,11 @@
     "plugins": [
       "expo-font",
       "expo-splash-screen"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "7420fc5a-e9db-4491-b6d1-2a688b4d95e8"
+      }
+    }
   }
 }

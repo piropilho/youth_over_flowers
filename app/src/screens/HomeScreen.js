@@ -1,62 +1,24 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+import pendingCharge from '../utils/pendingCharge';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  ScrollView,
   Image,
 } from 'react-native';
-import Svg, { Path, Rect, Circle, Line } from 'react-native-svg';
+import Svg, { Path, Rect } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
+import BottomTabBar from '../components/BottomTabBar';
 
-const TAB_ITEMS = [
-  { key: 'home', label: '홈' },
-  { key: 'pay', label: '결제' },
-  { key: 'recommend', label: '추천' },
-  { key: 'transport', label: '교통' },
-  { key: 'my', label: '마이' },
+const NEARBY_PLACES = [
+  { icon: '☕', name: '익선동 한옥카페', walk: 5, rating: 4.8, badge: 'QR 5% 할인', badgeBg: '#BDE4DC', badgeColor: '#1A7A60' },
+  { icon: '🥘', name: '광장시장',        walk: 3, rating: 4.6, badge: '인기',       badgeBg: '#F5EDD8', badgeColor: '#A07840' },
+  { icon: '🛍️', name: '성수동 팝업',     walk: 8, rating: 4.5, badge: '추천',       badgeBg: '#E8F5F0', badgeColor: '#1A7A60' },
 ];
-
-function TabIcon({ name, active }) {
-  const color = active ? COLORS.primary : '#BDBDBD';
-  if (name === 'home') return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-      <Path d="M3 11.5L12 3l9 8.5V21a1 1 0 01-1 1H5a1 1 0 01-1-1v-9.5z" stroke={color} strokeWidth={1.8} fill={active ? color : 'none'} />
-      <Path d="M9 22V12h6v10" stroke={active ? COLORS.white : color} strokeWidth={1.8} />
-    </Svg>
-  );
-  if (name === 'pay') return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-      <Rect x="3" y="3" width="7" height="7" rx="1" stroke={color} strokeWidth={1.8} />
-      <Rect x="14" y="3" width="7" height="7" rx="1" stroke={color} strokeWidth={1.8} />
-      <Rect x="3" y="14" width="7" height="7" rx="1" stroke={color} strokeWidth={1.8} />
-      <Rect x="14" y="14" width="7" height="7" rx="1" stroke={color} strokeWidth={1.8} />
-    </Svg>
-  );
-  if (name === 'recommend') return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-      <Circle cx="12" cy="12" r="9" stroke={color} strokeWidth={1.8} />
-      <Circle cx="12" cy="12" r="3" stroke={color} strokeWidth={1.8} />
-    </Svg>
-  );
-  if (name === 'transport') return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-      <Rect x="5" y="2" width="14" height="16" rx="3" stroke={color} strokeWidth={1.8} />
-      <Path d="M5 10h14" stroke={color} strokeWidth={1.8} />
-      <Circle cx="8.5" cy="16" r="1.5" fill={color} />
-      <Circle cx="15.5" cy="16" r="1.5" fill={color} />
-      <Path d="M8 20l-2 2M16 20l2 2" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
-    </Svg>
-  );
-  if (name === 'my') return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-      <Path d="M12 21C12 21 4 15.5 4 9.5a4.5 4.5 0 019-0c.1-.1.2-.2.3-.3A4.5 4.5 0 0121 9.5C21 15.5 12 21 12 21z" stroke={color} strokeWidth={1.8} fill={active ? color : 'none'} />
-    </Svg>
-  );
-  return null;
-}
 
 function parseTravelDate(str) {
   const [y, m, d] = str.replace(/\s/g, '').split('-').map(Number);
@@ -65,8 +27,26 @@ function parseTravelDate(str) {
 
 export default function HomeScreen({ navigation, route }) {
   const userName = '朴必鎬';
-  const departDate = route.params?.departDate ?? null;
-  const returnDate = route.params?.returnDate ?? null;
+
+  const [departDate, setDepartDate] = useState(route.params?.departDate ?? null);
+  const [returnDate, setReturnDate] = useState(route.params?.returnDate ?? null);
+  const [balance, setBalance] = useState(0);
+  const [isInKorea, setIsInKorea] = useState(false);
+
+  useEffect(() => {
+    if (route.params?.departDate) setDepartDate(route.params.departDate);
+    if (route.params?.returnDate)  setReturnDate(route.params.returnDate);
+  }, [route.params?.departDate, route.params?.returnDate]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (pendingCharge.krw > 0) {
+        setBalance(prev => prev + pendingCharge.krw);
+        pendingCharge.krw = 0;
+      }
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const dDay = useMemo(() => {
     if (!departDate) return null;
@@ -78,18 +58,36 @@ export default function HomeScreen({ navigation, route }) {
   }, [departDate]);
 
   return (
+    <View style={{ flex: 1 }}>
+      <LinearGradient
+        colors={['#B8E8D4', '#D6F2E8', '#EDF8F3', '#F5F5F5']}
+        start={{ x: 0.1, y: 0 }}
+        end={{ x: 0.9, y: 0.6 }}
+        style={StyleSheet.absoluteFill}
+      />
     <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.logoRow}>
-          <Image source={require('../../assets/hana-symbol.png')} style={styles.logoIcon} resizeMode="contain" />
-          <Text style={styles.logoText}>HANA <Text style={{ color: '#E90061' }}>EZPZ</Text></Text>
+        {/* 좌측: 로고 */}
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => setIsInKorea(v => !v)} activeOpacity={1}>
+            <Image source={require('../../assets/hana-symbol.png')} style={styles.logoIcon} resizeMode="contain" />
+          </TouchableOpacity>
+          {isInKorea && (
+            <View style={styles.inKoreaBadge}>
+              <Text style={styles.inKoreaBadgeText}>KOREA</Text>
+            </View>
+          )}
         </View>
-        <TouchableOpacity style={styles.bellBtn}>
-          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-            <Path d="M15 17h5l-1.4-1.4A2 2 0 0118 14V11a6 6 0 00-4-5.66V5a2 2 0 00-4 0v.34A6 6 0 006 11v3a2 2 0 01-.6 1.4L4 17h5m6 0H9m6 0a3 3 0 01-6 0" stroke={COLORS.textDark} strokeWidth={1.8} strokeLinecap="round" />
-          </Svg>
-        </TouchableOpacity>
+        {/* 우측: 벨 */}
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.bellBtn}>
+            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+              <Path d="M15 17h5l-1.4-1.4A2 2 0 0118 14V11a6 6 0 00-4-5.66V5a2 2 0 00-4 0v.34A6 6 0 006 11v3a2 2 0 01-.6 1.4L4 17h5m6 0H9m6 0a3 3 0 01-6 0" stroke={COLORS.textDark} strokeWidth={1.8} strokeLinecap="round" />
+            </Svg>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Welcome */}
@@ -104,7 +102,7 @@ export default function HomeScreen({ navigation, route }) {
             <Text style={styles.welcomeSub}>Welcome to Korea</Text>
           </View>
           <Image
-            source={require('../../assets/별돌이_찰칵.png')}
+            source={require('../../assets/byuldol-capture.png')}
             style={styles.welcomeImage}
             resizeMode="contain"
           />
@@ -136,19 +134,14 @@ export default function HomeScreen({ navigation, route }) {
       )}
 
       {/* Balance Card */}
-      <LinearGradient
-        colors={['#EEEEEE', '#6FCF97', '#2FA084', '#1F6F5F']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.card}
-      >
+      <View style={styles.card}>
         <View style={styles.cardTopRow}>
           <View>
             <Text style={styles.balanceLabel}>내 잔액</Text>
-            <Text style={styles.balanceAmount}>₩ 0</Text>
-            <Text style={styles.balanceYen}>≈ ¥0</Text>
+            <Text style={styles.balanceAmount}>₩ {balance.toLocaleString('ko-KR')}</Text>
+            <Text style={styles.balanceYen}>충전된 원화 잔액</Text>
           </View>
-          <TouchableOpacity style={styles.chargeBtn}>
+          <TouchableOpacity style={styles.chargeBtn} onPress={() => navigation.navigate('Charge')}>
             <Text style={styles.chargeBtnText}>+ 충전</Text>
           </TouchableOpacity>
         </View>
@@ -156,10 +149,10 @@ export default function HomeScreen({ navigation, route }) {
         <View style={styles.progressBar}>
           <View style={styles.progressFill} />
         </View>
-        <Text style={styles.remaining}>₩0 남음</Text>
+        <Text style={styles.remaining}>₩{balance.toLocaleString('ko-KR')} 잔액</Text>
 
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.actionBtn}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('QRPay', { balance })}>
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" style={{ marginRight: 6 }}>
               <Rect x="3" y="3" width="7" height="7" rx="1" stroke={COLORS.primary} strokeWidth={2} />
               <Rect x="14" y="3" width="7" height="7" rx="1" stroke={COLORS.primary} strokeWidth={2} />
@@ -176,50 +169,78 @@ export default function HomeScreen({ navigation, route }) {
             <Text style={styles.actionBtnText}>더치페이</Text>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
-
-      {/* Schedule Section */}
-      <View style={styles.scheduleSection}>
-        {departDate ? (
-          <Text style={styles.scheduleEmpty}>아직 여행이 시작되지 않았어요</Text>
-        ) : (
-          <>
-            <Text style={styles.scheduleEmpty}>아직 여행 일정이 입력되지 않았어요</Text>
-            <TouchableOpacity style={styles.scheduleBtn} onPress={() => navigation.navigate('TravelPlan')}>
-              <Text style={styles.scheduleBtnText}>여행계획 세우러 가기 →</Text>
-            </TouchableOpacity>
-          </>
-        )}
       </View>
 
-      {/* Bottom Tab Bar */}
-      <View style={styles.tabBar}>
-        {TAB_ITEMS.map((tab) => {
-          const active = tab.key === 'home';
-          return (
-            <TouchableOpacity key={tab.key} style={styles.tabItem}>
-              <TabIcon name={tab.key} active={active} />
-              <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{tab.label}</Text>
+      {/* Schedule / Nearby Section */}
+      {isInKorea ? (
+        <View style={styles.nearbySection}>
+          <View style={styles.nearbyHeader}>
+            <View>
+              <Text style={styles.nearbyTitle}>📍 지금 내 주변</Text>
+              <Text style={styles.nearbySub}>골목상권 추천</Text>
+            </View>
+            <TouchableOpacity>
+              <Text style={styles.nearbyMore}>전체보기 →</Text>
             </TouchableOpacity>
-          );
-        })}
-      </View>
+          </View>
+          {NEARBY_PLACES.map((place, i) => (
+            <TouchableOpacity key={i} style={styles.nearbyItem} activeOpacity={0.7}>
+              <View style={styles.nearbyIconBox}>
+                <Text style={styles.nearbyIcon}>{place.icon}</Text>
+              </View>
+              <View style={styles.nearbyInfo}>
+                <Text style={styles.nearbyName}>{place.name}</Text>
+                <Text style={styles.nearbyMeta}>도보 {place.walk}분  ★ {place.rating}</Text>
+              </View>
+              <View style={[styles.nearbyBadge, { backgroundColor: place.badgeBg }]}>
+                <Text style={[styles.nearbyBadgeText, { color: place.badgeColor }]}>{place.badge}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : (
+        <View style={styles.scheduleSection}>
+          {departDate ? (
+            <Text style={styles.scheduleEmpty}>아직 여행이 시작되지 않았어요</Text>
+          ) : (
+            <>
+              <Text style={styles.scheduleEmpty}>아직 여행 일정이 입력되지 않았어요</Text>
+              <TouchableOpacity style={styles.scheduleBtn} onPress={() => navigation.navigate('TravelPlan')}>
+                <Text style={styles.scheduleBtnText}>여행계획 세우러 가기 →</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      )}
+
+      </ScrollView>
+      <BottomTabBar activeTab="home" navigation={navigation} balance={balance} />
     </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: 'transparent',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: COLORS.white,
+    backgroundColor: 'transparent',
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingVertical: 10,
+  },
+  headerLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerRight: {
+    flex: 1,
+    alignItems: 'flex-end',
   },
   logoRow: {
     flexDirection: 'row',
@@ -227,19 +248,30 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   logoIcon: {
-    width: 28,
-    height: 28,
+    width: 22,
+    height: 22,
   },
   logoText: {
     fontFamily: 'Hana2-Bold',
-    fontSize: 17,
+    fontSize: 14,
     color: COLORS.primary,
   },
   bellBtn: {
     padding: 4,
   },
+  inKoreaBadge: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  inKoreaBadgeText: {
+    fontFamily: 'Hana2-Bold',
+    fontSize: 12,
+    color: '#fff',
+  },
   welcomeSection: {
-    backgroundColor: COLORS.white,
+    backgroundColor: 'transparent',
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 24,
@@ -324,7 +356,7 @@ const styles = StyleSheet.create({
     color: COLORS.textGray,
   },
   card: {
-    backgroundColor: COLORS.white,
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 16,
@@ -412,8 +444,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.primary,
   },
+  scrollContent: {
+    paddingBottom: 24,
+  },
   scheduleSection: {
-    flex: 1,
     marginHorizontal: 16,
     marginTop: 12,
     backgroundColor: COLORS.white,
@@ -441,26 +475,73 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: COLORS.white,
   },
-  tabBar: {
-    flexDirection: 'row',
+  nearbySection: {
+    marginHorizontal: 16,
+    marginTop: 12,
     backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    paddingBottom: 8,
-    paddingTop: 8,
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
+    borderRadius: 16,
+    padding: 20,
     gap: 4,
   },
-  tabLabel: {
-    fontFamily: 'Hana2-Regular',
-    fontSize: 11,
-    color: '#BDBDBD',
+  nearbyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
   },
-  tabLabelActive: {
+  nearbyTitle: {
+    fontFamily: 'Hana2-Bold',
+    fontSize: 16,
+    color: COLORS.textDark,
+    marginBottom: 2,
+  },
+  nearbySub: {
+    fontFamily: 'Hana2-Regular',
+    fontSize: 12,
+    color: COLORS.textGray,
+  },
+  nearbyMore: {
+    fontFamily: 'Hana2-Regular',
+    fontSize: 13,
     color: COLORS.primary,
-    fontFamily: 'Hana2-Medium',
+    marginTop: 2,
+  },
+  nearbyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F4F4F4',
+    gap: 12,
+  },
+  nearbyIconBox: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: '#E8F5F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nearbyIcon: { fontSize: 26 },
+  nearbyInfo: { flex: 1 },
+  nearbyName: {
+    fontFamily: 'Hana2-Bold',
+    fontSize: 15,
+    color: COLORS.textDark,
+    marginBottom: 3,
+  },
+  nearbyMeta: {
+    fontFamily: 'Hana2-Regular',
+    fontSize: 12,
+    color: COLORS.textGray,
+  },
+  nearbyBadge: {
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  nearbyBadgeText: {
+    fontFamily: 'Hana2-Bold',
+    fontSize: 12,
   },
 });
