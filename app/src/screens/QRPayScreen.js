@@ -8,6 +8,7 @@ import {
   Dimensions,
   Animated,
   StatusBar,
+  Image,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { COLORS } from '../constants/colors';
@@ -91,6 +92,13 @@ export default function QRPayScreen({ navigation, route }) {
             {tab === 'scan' && (
               <Animated.View style={[styles.scanLine, { transform: [{ translateY: scanY }] }]} />
             )}
+            {tab === 'myqr' && (
+              <Image
+                source={require('../../assets/bitamin-qr.png')}
+                style={{ position: 'absolute', width: CAM_SIZE - 32, height: CAM_SIZE - 32, top: 16, left: 16 }}
+                resizeMode="contain"
+              />
+            )}
           </View>
           <View style={styles.sideDark} />
         </View>
@@ -111,7 +119,7 @@ export default function QRPayScreen({ navigation, route }) {
           </View>
         </View>
 
-        <BottomTabBar activeTab="qr" navigation={navigation} balance={balance} dark />
+        <BottomTabBar activeTab="qr" navigation={navigation} balance={balance} dark minimal />
       </SafeAreaView>
     </View>
   );

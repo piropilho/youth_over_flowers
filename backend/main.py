@@ -155,6 +155,43 @@ def _gpt_correct_mrz(line1: str, line2: str) -> dict | None:
         return None
 
 
+class LocationRequest(BaseModel):
+    lat: float
+    lng: float
+
+
+_DEMO_SHOPS = [
+    {"id": 1,  "name": "석촌 할머니 분식",    "category": "식당", "desc": "50년 전통 떡볶이 맛집",         "dlat":  0.0015, "dlng":  0.0008},
+    {"id": 2,  "name": "삼거리 국밥집",        "category": "식당", "desc": "든든한 한 끼, 24시간 운영",    "dlat": -0.0012, "dlng":  0.0018},
+    {"id": 3,  "name": "만두가 제일이야",      "category": "식당", "desc": "직접 빚은 수제 만두",          "dlat":  0.0022, "dlng": -0.0010},
+    {"id": 4,  "name": "콩나물 국밥",          "category": "식당", "desc": "해장용 뜨끈한 국밥",           "dlat": -0.0005, "dlng": -0.0028},
+    {"id": 5,  "name": "골목 카페 봄날",       "category": "카페", "desc": "수제 케이크와 핸드드립 커피",  "dlat": -0.0008, "dlng": -0.0015},
+    {"id": 6,  "name": "다방 커피향기",        "category": "카페", "desc": "레트로 감성 카페",             "dlat":  0.0010, "dlng":  0.0025},
+    {"id": 7,  "name": "동네 빵집",            "category": "카페", "desc": "매일 아침 갓 구운 빵",        "dlat": -0.0020, "dlng":  0.0005},
+    {"id": 8,  "name": "한양 전통시장",        "category": "시장", "desc": "신선 농수산물 직판",           "dlat":  0.0008, "dlng": -0.0022},
+    {"id": 9,  "name": "새벽 청과물",          "category": "시장", "desc": "새벽배송 신선 야채",           "dlat": -0.0025, "dlng": -0.0008},
+    {"id": 10, "name": "꽃보다 꽃집",          "category": "쇼핑", "desc": "싱싱한 생화 및 화분",          "dlat":  0.0018, "dlng":  0.0020},
+    {"id": 11, "name": "문구야 어디가",        "category": "쇼핑", "desc": "동네 문구·잡화점",            "dlat": -0.0015, "dlng":  0.0030},
+    {"id": 12, "name": "이발소 미용실",        "category": "쇼핑", "desc": "20년 단골 이발소",             "dlat":  0.0030, "dlng": -0.0005},
+]
+
+
+@app.post("/map/nearby")
+def map_nearby(req: LocationRequest):
+    shops = [
+        {
+            "id":       s["id"],
+            "name":     s["name"],
+            "category": s["category"],
+            "desc":     s["desc"],
+            "lat":      req.lat + s["dlat"],
+            "lng":      req.lng + s["dlng"],
+        }
+        for s in _DEMO_SHOPS
+    ]
+    return {"success": True, "shops": shops, "total": len(shops)}
+
+
 class FaceScanRequest(BaseModel):
     image: str  # base64 encoded JPEG
 

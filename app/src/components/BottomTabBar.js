@@ -5,7 +5,7 @@ import { COLORS } from '../constants/colors';
 
 const LEFT_TABS  = [
   { key: 'home',   label: 'Home'   },
-  { key: 'coupon', label: 'Coupon' },
+  { key: 'promotion', label: 'Promotion' },
 ];
 const RIGHT_TABS = [
   { key: 'map', label: 'Map' },
@@ -20,7 +20,7 @@ function TabIcon({ name, active, dark }) {
       <Path d="M9 22V12h6v10" stroke={active ? COLORS.white : color} strokeWidth={1.8} />
     </Svg>
   );
-  if (name === 'coupon') return (
+  if (name === 'promotion') return (
     <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
       <Path d="M2 8.5V6a1 1 0 011-1h18a1 1 0 011 1v2.5a2 2 0 000 4V16a1 1 0 01-1 1H3a1 1 0 01-1-1v-3a2 2 0 000-4z" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
       <Line x1="9" y1="5" x2="9" y2="17" stroke={color} strokeWidth={1.5} strokeDasharray="2 2" />
@@ -41,10 +41,26 @@ function TabIcon({ name, active, dark }) {
   return null;
 }
 
-export default function BottomTabBar({ activeTab = 'home', navigation, balance = 0, dark = false }) {
+export default function BottomTabBar({ activeTab = 'home', navigation, balance = 0, dark = false, minimal = false }) {
   const handleTab = (key) => {
-    if (key === 'home') navigation.navigate('Home');
+    if (key === 'home') {
+      activeTab === 'qr' ? navigation.goBack() : navigation.navigate('Home');
+    }
+    if (key === 'promotion') navigation.navigate('Coupon');
+    if (key === 'map') navigation.navigate('Map');
+    if (key === 'my') navigation.navigate('MyCard');
   };
+
+  if (minimal) {
+    return (
+      <View style={[styles.bar, dark && styles.barDark, styles.minimalBar]}>
+        <TouchableOpacity style={styles.minimalHomeBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
+          <TabIcon name="home" active={false} dark={dark} />
+          <Text style={[styles.label, dark && styles.labelDark]}>Home</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.wrapper}>
@@ -72,7 +88,7 @@ export default function BottomTabBar({ activeTab = 'home', navigation, balance =
       <TouchableOpacity
         style={styles.centerBtn}
         activeOpacity={0.85}
-        onPress={() => activeTab === 'qr' ? navigation.navigate('Home') : navigation.navigate('QRPay', { balance })}
+        onPress={() => activeTab === 'qr' ? navigation.goBack() : navigation.navigate('QRPay', { balance })}
       >
         {activeTab === 'qr' ? (
           <Svg width={32} height={32} viewBox="0 0 24 24" fill="none">
@@ -104,7 +120,9 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   item:        { flex: 1, alignItems: 'center', gap: 4 },
-  centerSpace: { width: 72 },
+  centerSpace:    { width: 72 },
+  minimalBar:     { justifyContent: 'center' },
+  minimalHomeBtn: { alignItems: 'center', gap: 4, paddingVertical: 4 },
   centerBtn: {
     position: 'absolute',
     top: -30,

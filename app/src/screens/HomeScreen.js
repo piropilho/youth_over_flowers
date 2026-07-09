@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import pendingCharge from '../utils/pendingCharge';
+import appStore from '../utils/appStore';
 import {
   View,
   Text,
@@ -15,9 +16,9 @@ import { COLORS } from '../constants/colors';
 import BottomTabBar from '../components/BottomTabBar';
 
 const NEARBY_PLACES = [
-  { icon: '☕', name: '익선동 한옥카페', walk: 5, rating: 4.8, badge: 'QR 5% 할인', badgeBg: '#BDE4DC', badgeColor: '#1A7A60' },
-  { icon: '🥘', name: '광장시장',        walk: 3, rating: 4.6, badge: '인기',       badgeBg: '#F5EDD8', badgeColor: '#A07840' },
-  { icon: '🛍️', name: '성수동 팝업',     walk: 8, rating: 4.5, badge: '추천',       badgeBg: '#E8F5F0', badgeColor: '#1A7A60' },
+  { icon: '🐟', name: '가락시장 OO수산',       walk: 3,  rating: 4.8, badge: '전통시장', badgeBg: '#BDE4DC', badgeColor: '#1A7A60' },
+  { icon: '🍜', name: '방이 시장 OO국수',      walk: 8,  rating: 4.6, badge: '로컬맛집', badgeBg: '#F5EDD8', badgeColor: '#A07840' },
+  { icon: '🌶️', name: '방이 시장 ㅁㅁ 떡볶이', walk: 10, rating: 4.5, badge: '로컬맛집', badgeBg: '#E8F5F0', badgeColor: '#1A7A60' },
 ];
 
 function parseTravelDate(str) {
@@ -28,20 +29,30 @@ function parseTravelDate(str) {
 export default function HomeScreen({ navigation, route }) {
   const userName = '朴必鎬';
 
-  const [departDate, setDepartDate] = useState(route.params?.departDate ?? null);
-  const [returnDate, setReturnDate] = useState(route.params?.returnDate ?? null);
-  const [balance, setBalance] = useState(0);
+  const [departDate, setDepartDate] = useState(() => appStore.departDate);
+  const [returnDate, setReturnDate] = useState(() => appStore.returnDate);
+  const [balance, setBalance] = useState(() => appStore.balance);
   const [isInKorea, setIsInKorea] = useState(false);
 
   useEffect(() => {
-    if (route.params?.departDate) setDepartDate(route.params.departDate);
-    if (route.params?.returnDate)  setReturnDate(route.params.returnDate);
+    if (route.params?.departDate) {
+      setDepartDate(route.params.departDate);
+      appStore.departDate = route.params.departDate;
+    }
+    if (route.params?.returnDate) {
+      setReturnDate(route.params.returnDate);
+      appStore.returnDate = route.params.returnDate;
+    }
   }, [route.params?.departDate, route.params?.returnDate]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       if (pendingCharge.krw > 0) {
-        setBalance(prev => prev + pendingCharge.krw);
+        setBalance(prev => {
+          const next = prev + pendingCharge.krw;
+          appStore.balance = next;
+          return next;
+        });
         pendingCharge.krw = 0;
       }
     });
@@ -162,7 +173,7 @@ export default function HomeScreen({ navigation, route }) {
             <Text style={styles.actionBtnText}>QR 결제</Text>
           </TouchableOpacity>
           <View style={styles.actionDivider} />
-          <TouchableOpacity style={styles.actionBtn}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('DutchPay')}>
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" style={{ marginRight: 6 }}>
               <Path d="M4 6h16M4 12h10M4 18h7" stroke={COLORS.primary} strokeWidth={2} strokeLinecap="round" />
             </Svg>
@@ -179,7 +190,7 @@ export default function HomeScreen({ navigation, route }) {
               <Text style={styles.nearbyTitle}>📍 지금 내 주변</Text>
               <Text style={styles.nearbySub}>골목상권 추천</Text>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Map')}>
               <Text style={styles.nearbyMore}>전체보기 →</Text>
             </TouchableOpacity>
           </View>

@@ -33,6 +33,13 @@ export default function VerificationScreen({ navigation }) {
         <Text style={styles.backBtnText}>‹</Text>
       </TouchableOpacity>
 
+      {/* 히든 스킵 버튼 — 우측 상단 투명 영역 */}
+      <TouchableOpacity
+        style={styles.hiddenSkip}
+        activeOpacity={1}
+        onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
+      />
+
       <View style={styles.content}>
         <View style={styles.imageWrapper}>
           <Animated.Image
@@ -146,6 +153,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Hana2-Regular',
     fontSize: 15,
     color: COLORS.textDark,
+  },
+  hiddenSkip: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 80,
+    height: 80,
   },
   bottom: {
     paddingHorizontal: 24,

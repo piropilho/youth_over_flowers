@@ -9,7 +9,7 @@
       "web"
     ],
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/1024-icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
@@ -17,6 +17,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "여권 스캔 및 본인 인증을 위해 카메라를 사용합니다.",
+        "NSLocationWhenInUseUsageDescription": "주변 골목상권 추천을 위해 현재 위치를 사용합니다.",
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         }
