@@ -14,6 +14,8 @@ import VerificationCompleteScreen from '../screens/VerificationCompleteScreen';
 import HomeScreen from '../screens/HomeScreen';
 import TravelPlanScreen from '../screens/TravelPlanScreen';
 import ChargeScreen from '../screens/ChargeScreen';
+import ChargeSuccessScreen from '../screens/ChargeSuccessScreen';
+import BenefitDetailScreen from '../screens/BenefitDetailScreen';
 import QRPayScreen from '../screens/QRPayScreen';
 import CouponScreen from '../screens/CouponScreen';
 import DutchPayScreen from '../screens/DutchPayScreen';
@@ -38,6 +40,8 @@ export default function AppNavigator() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="TravelPlan" component={TravelPlanScreen} options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="Charge" component={ChargeScreen} options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="ChargeSuccess" component={ChargeSuccessScreen} options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="BenefitDetail" component={BenefitDetailScreen} options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="QRPay" component={QRPayScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }} />
         <Stack.Screen name="Coupon" component={CouponScreen} options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="Map" component={MapScreen} options={{ animation: 'slide_from_right' }} />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Svg, { Path, Line } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../constants/colors';
 
 const LEFT_TABS  = [
@@ -42,6 +43,7 @@ function TabIcon({ name, active, dark }) {
 }
 
 export default function BottomTabBar({ activeTab = 'home', navigation, balance = 0, dark = false, minimal = false }) {
+  const insets = useSafeAreaInsets();
   const handleTab = (key) => {
     if (key === 'home') {
       activeTab === 'qr' ? navigation.goBack() : navigation.navigate('Home');
@@ -99,19 +101,24 @@ export default function BottomTabBar({ activeTab = 'home', navigation, balance =
           <Image source={require('../../assets/qrcode.png')} style={styles.centerIcon} resizeMode="contain" />
         )}
       </TouchableOpacity>
+      {insets.bottom > 0 && (
+        <View style={[styles.safeBottom, dark && styles.safeBottomDark, { height: insets.bottom }]} />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper:     { alignItems: 'center' },
+  wrapper:     { alignItems: 'center', width: '100%' },
+  safeBottom:  { width: '100%', backgroundColor: COLORS.white },
+  safeBottomDark: { backgroundColor: 'rgba(0,0,0,0.7)' },
   bar: {
     flexDirection: 'row',
     backgroundColor: COLORS.white,
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
-    paddingBottom: 10,
-    paddingTop: 10,
+    paddingBottom: 4,
+    paddingTop: 16,
     width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },

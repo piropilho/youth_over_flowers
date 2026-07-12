@@ -9,6 +9,8 @@ import {
   Modal,
   Animated,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import CountryFlag from 'react-native-country-flag';
 import { COLORS } from '../constants/colors';
@@ -18,12 +20,12 @@ import pendingCharge from '../utils/pendingCharge';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const CURRENCIES = [
-  { code: 'CNY', name: '중국 위안(CNY)',  isoCode: 'cn', rateLabel: '1위안 = 226.04원',  ratePerOne: 226.04, symbol: '위안', quickAmounts: [500, 1000, 2000, 5000] },
-  { code: 'JPY', name: '일본 엔(JPY)',    isoCode: 'jp', rateLabel: '100엔 = 956.2원',   ratePerOne: 9.562,  symbol: '엔',   quickAmounts: [5000, 10000, 30000, 50000] },
-  { code: 'USD', name: '미국 달러(USD)',  isoCode: 'us', rateLabel: '1달러 = 1,480원',   ratePerOne: 1480,   symbol: '달러', quickAmounts: [50, 100, 200, 500] },
-  { code: 'EUR', name: '유럽 유로(EUR)',  isoCode: 'eu', rateLabel: '1유로 = 1,523원',   ratePerOne: 1523,   symbol: '유로', quickAmounts: [50, 100, 200, 500] },
-  { code: 'THB', name: '태국 바트(THB)',  isoCode: 'th', rateLabel: '1바트 = 39.52원',   ratePerOne: 39.52,  symbol: '바트', quickAmounts: [1000, 3000, 5000, 10000] },
-  { code: 'VND', name: '베트남 동(VND)', isoCode: 'vn', rateLabel: '1000동 = 54.1원',   ratePerOne: 0.0541, symbol: '동',   quickAmounts: [500000, 1000000, 2000000, 5000000] },
+  { code: 'CNY', name: '중국 위안(CNY)',  isoCode: 'cn', rateLabel: '1위안 = 226.04원',  ratePerOne: 226.04, symbol: 'CN¥', quickAmounts: [500, 1000, 2000, 5000] },
+  { code: 'JPY', name: '일본 엔(JPY)',    isoCode: 'jp', rateLabel: '100엔 = 956.2원',   ratePerOne: 9.562,  symbol: '¥',   quickAmounts: [5000, 10000, 30000, 50000] },
+  { code: 'USD', name: '미국 달러(USD)',  isoCode: 'us', rateLabel: '1달러 = 1,480원',   ratePerOne: 1480,   symbol: '$',   quickAmounts: [50, 100, 200, 500] },
+  { code: 'EUR', name: '유럽 유로(EUR)',  isoCode: 'eu', rateLabel: '1유로 = 1,523원',   ratePerOne: 1523,   symbol: '€',   quickAmounts: [50, 100, 200, 500] },
+  { code: 'THB', name: '태국 바트(THB)',  isoCode: 'th', rateLabel: '1바트 = 39.52원',   ratePerOne: 39.52,  symbol: '฿',   quickAmounts: [1000, 3000, 5000, 10000] },
+  { code: 'VND', name: '베트남 동(VND)', isoCode: 'vn', rateLabel: '1000동 = 54.1원',   ratePerOne: 0.0541, symbol: '₫',   quickAmounts: [500000, 1000000, 2000000, 5000000] },
 ];
 
 function formatAmount(val, currency) {
@@ -35,9 +37,7 @@ function formatKRW(val) {
 }
 
 function chipLabel(val, currency) {
-  if (currency.code === 'VND') return `${(val / 10000).toLocaleString('ko-KR')}만${currency.symbol}`;
-  if (val >= 10000) return `${val / 10000}만${currency.symbol}`;
-  return `${val.toLocaleString('ko-KR')}${currency.symbol}`;
+  return `+${currency.symbol}${val.toLocaleString('ko-KR')}`;
 }
 
 export default function ChargeScreen({ navigation }) {
@@ -106,88 +106,102 @@ export default function ChargeScreen({ navigation }) {
         <Text style={styles.headerTitle}>금액 충전</Text>
       </View>
 
-      <View style={styles.body}>
-        <Text style={styles.title}>보유 통화를 선택해주세요</Text>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0}>
+        <View style={styles.body}>
+          <Text style={styles.title}>보유 통화를 선택해주세요</Text>
 
-        <TouchableOpacity style={styles.currencyCard} activeOpacity={0.7} onPress={openSheet}>
-          <CountryFlag isoCode={currency.isoCode} size={22} />
-          <View style={styles.currencyInfo}>
-            <Text style={styles.currencyName}>{currency.name}</Text>
-            <Text style={styles.currencyHint}>탭하여 통화 변경</Text>
-          </View>
-          <Text style={styles.chevron}>›</Text>
-        </TouchableOpacity>
-
-        <View style={styles.rateBanner}>
-          <Text style={styles.rateLabel}>오늘의 환율</Text>
-          <Text style={styles.rateValue}>  {currency.rateLabel}</Text>
-          <Text style={styles.rateBadge}>우대 100%</Text>
-        </View>
-
-        <Text style={styles.amountLabel}>충전할 금액</Text>
-
-        <View style={styles.amountRow}>
-          <TouchableOpacity onPress={() => inputRef.current?.focus()} activeOpacity={0.8} style={[styles.amountTouchable, isFocused && styles.amountTouchableFocused]}>
-            <View style={styles.amountInner}>
-              <Text style={[styles.amountText, !amount && styles.amountZero]}>
-                {amount > 0 ? amount.toLocaleString('ko-KR') : '0'}
-              </Text>
-              {isFocused && (
-                <Animated.View style={[styles.cursor, { opacity: cursorOpacity }]} />
-              )}
-              <Text style={[styles.amountText, !amount && styles.amountZero]}>
-                {currency.symbol}
-              </Text>
-            </View>
+          <TouchableOpacity style={styles.currencyCard} activeOpacity={0.7} onPress={openSheet}>
+            <CountryFlag isoCode={currency.isoCode} size={22} />
+            <Text style={[styles.currencyName, { flex: 1 }]}>{currency.name}</Text>
+            <Text style={styles.chevron}>›</Text>
           </TouchableOpacity>
-          {amount > 0 && (
-            <TouchableOpacity onPress={() => setInputValue('')} style={styles.clearBtn}>
-              <Text style={styles.clearBtnText}>↺</Text>
+
+          <View style={styles.rateBanner}>
+            <Text style={styles.rateLabel}>오늘의 환율</Text>
+            <Text style={styles.rateValue}>  {currency.rateLabel}</Text>
+            <Text style={styles.rateBadge}>우대 100%</Text>
+          </View>
+
+          <Text style={styles.amountLabel}>충전할 금액</Text>
+
+          <View style={styles.amountRow}>
+            <TouchableOpacity onPress={() => inputRef.current?.focus()} activeOpacity={0.8} style={[styles.amountTouchable, isFocused && styles.amountTouchableFocused]}>
+              <View style={styles.amountInner}>
+                {amount > 0 ? (
+                  <>
+                    <Text style={styles.amountText}>{currency.symbol}</Text>
+                    <Text style={styles.amountText}>{amount.toLocaleString('ko-KR')}</Text>
+                    {isFocused && <Animated.View style={[styles.cursor, { opacity: cursorOpacity }]} />}
+                  </>
+                ) : (
+                  <>
+                    <Text style={[styles.amountText, styles.amountZero]}>{currency.symbol + '0'}</Text>
+                    {isFocused && <Animated.View style={[styles.cursor, { opacity: cursorOpacity }]} />}
+                  </>
+                )}
+              </View>
             </TouchableOpacity>
+            {amount > 0 && (
+              <TouchableOpacity onPress={() => setInputValue('')} style={styles.clearBtn}>
+                <Text style={styles.clearBtnText}>↺</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <TextInput
+            ref={inputRef}
+            style={styles.hiddenInput}
+            value={inputValue}
+            onChangeText={handleAmountChange}
+            keyboardType="number-pad"
+            returnKeyType="done"
+            blurOnSubmit
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+
+          <Text style={styles.convertedText}>
+            {amount > 0 ? `≈ ₩${formatKRW(krwReceived)} 수령` : `₩0 수령`}
+          </Text>
+
+          <View style={styles.chipRow}>
+            {currency.quickAmounts.map((val) => (
+              <TouchableOpacity key={val} style={styles.chip} onPress={() => { const next = amount + val; setInputValue(next.toLocaleString('ko-KR')); }}>
+                <Text style={styles.chipText}>{chipLabel(val, currency)}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {amount > 0 && (
+            <Text style={styles.estimatedText}>충전 후 예상 수령액 ≈ ₩ {formatKRW(krwReceived)}</Text>
           )}
         </View>
-        <TextInput
-          ref={inputRef}
-          style={styles.hiddenInput}
-          value={inputValue}
-          onChangeText={handleAmountChange}
-          keyboardType="number-pad"
-          returnKeyType="done"
-          blurOnSubmit
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-        />
 
-        <Text style={styles.convertedText}>
-          {amount > 0 ? `≈ ${formatKRW(krwReceived)}원 수령` : `0원 수령`}
-        </Text>
-
-        <View style={styles.chipRow}>
-          {currency.quickAmounts.map((val) => (
-            <TouchableOpacity key={val} style={styles.chip} onPress={() => { const next = amount + val; setInputValue(next.toLocaleString('ko-KR')); }}>
-              <Text style={styles.chipText}>{chipLabel(val, currency)}</Text>
-            </TouchableOpacity>
-          ))}
+        <View style={styles.bottom}>
+          {amount > 0 ? (
+            <AnimatedButton
+              style={styles.chargeBtn}
+              onPress={() => {
+                pendingCharge.krw = krwReceived;
+                navigation.navigate('ChargeSuccess', {
+                  krw: krwReceived,
+                  foreignAmount: amount,
+                  currencySymbol: currency.symbol,
+                  currencyCode: currency.code,
+                });
+              }}
+            >
+              <Text style={styles.chargeBtnText}>원화로 충전하기</Text>
+            </AnimatedButton>
+          ) : (
+            <View style={[styles.chargeBtn, styles.chargeBtnDisabled]}>
+              <Text style={styles.chargeBtnText}>원화로 충전하기</Text>
+            </View>
+          )}
+          <TouchableOpacity>
+            <Text style={styles.helpText}>도움이 필요하신가요? 지원센터 문의</Text>
+          </TouchableOpacity>
         </View>
-      </View>
-
-      <View style={styles.bottom}>
-        {amount > 0 ? (
-          <AnimatedButton
-            style={styles.chargeBtn}
-            onPress={() => { pendingCharge.krw = krwReceived; navigation.goBack(); }}
-          >
-            <Text style={styles.chargeBtnText}>원화로 충전하기</Text>
-          </AnimatedButton>
-        ) : (
-          <View style={[styles.chargeBtn, styles.chargeBtnDisabled]}>
-            <Text style={styles.chargeBtnText}>원화로 충전하기</Text>
-          </View>
-        )}
-        <TouchableOpacity>
-          <Text style={styles.helpText}>도움이 필요하신가요? 지원센터 문의</Text>
-        </TouchableOpacity>
-      </View>
+      </KeyboardAvoidingView>
 
       {/* 통화 선택 바텀시트 */}
       <Modal visible={sheetVisible} transparent animationType="none">
@@ -231,34 +245,41 @@ const styles = StyleSheet.create({
   backBtn:                { paddingHorizontal: 16, paddingVertical: 6 },
   backBtnText:            { fontSize: 20, color: COLORS.textDark },
   headerTitle:            { position: 'absolute', left: 0, right: 0, textAlign: 'center', fontFamily: 'Hana2-Bold', fontSize: 17, color: COLORS.textDark, zIndex: -1 },
-  body:                   { flex: 1, paddingHorizontal: 24, paddingTop: 28 },
+  body:                   { flex: 1, paddingHorizontal: 24, paddingTop: 32 },
   title:                  { fontFamily: 'Hana2-Bold', fontSize: 22, color: COLORS.textDark, marginBottom: 20 },
-  currencyCard:           { flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: COLORS.border, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 12, gap: 12 },
+  currencyCard:           {
+    flexDirection: 'row', alignItems: 'center',
+    borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14,
+    marginBottom: 12, gap: 12,
+    borderWidth: 1, borderColor: '#008465',
+    shadowOpacity: 0, elevation: 0, backgroundColor: '#E6F4F0',
+  },
   currencyInfo:           { flex: 1 },
   currencyName:           { fontFamily: 'Hana2-Bold', fontSize: 15, color: COLORS.textDark },
-  currencyHint:           { fontFamily: 'Hana2-Regular', fontSize: 12, color: COLORS.textGray, marginTop: 2 },
-  chevron:                { fontSize: 22, color: COLORS.textGray },
-  rateBanner:             { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.primaryLight, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 28, gap: 4 },
-  rateLabel:              { fontFamily: 'Hana2-Regular', fontSize: 13, color: COLORS.textGray },
-  rateValue:              { fontFamily: 'Hana2-Bold', fontSize: 13, color: COLORS.primary, flex: 1 },
-  rateBadge:              { fontFamily: 'Hana2-Bold', fontSize: 13, color: COLORS.primary },
-  amountLabel:            { fontFamily: 'Hana2-Medium', fontSize: 13, color: COLORS.textGray, marginBottom: 8 },
-  amountRow:              { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
-  amountTouchable:        { alignItems: 'center', paddingBottom: 6 },
-  amountTouchableFocused: { borderBottomWidth: 2.5, borderBottomColor: COLORS.primary },
+  currencyHint:           { fontFamily: 'Hana2-Regular', fontSize: 12, color: '#4B5563', marginTop: 2 },
+  chevron:                { fontSize: 26, color: '#008465', fontWeight: '600' },
+  rateBanner:             { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0FAF6', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 9, marginBottom: 44, gap: 4 },
+  rateLabel:              { fontFamily: 'Hana2-Regular', fontSize: 12, color: '#9CA3AF' },
+  rateValue:              { fontFamily: 'Hana2-Medium', fontSize: 12, color: COLORS.primary, flex: 1 },
+  rateBadge:              { fontFamily: 'Hana2-Bold', fontSize: 11, color: COLORS.primary, backgroundColor: '#D1FAE5', borderRadius: 20, paddingHorizontal: 8, paddingVertical: 2 },
+  amountLabel:            { fontFamily: 'Hana2-Medium', fontSize: 13, color: '#9CA3AF', marginBottom: 10 },
+  amountRow:              { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', marginBottom: 6 },
+  amountTouchable:        { flex: 1, paddingBottom: 8, borderBottomWidth: 2, borderBottomColor: '#E5E7EB' },
+  amountTouchableFocused: { borderBottomColor: COLORS.primary },
   amountInner:            { flexDirection: 'row', alignItems: 'center' },
-  amountText:             { fontFamily: 'Hana2-Bold', fontSize: 40, color: COLORS.textDark, textAlign: 'center' },
-  amountZero:             { color: '#CCCCCC' },
+  amountText:             { fontFamily: 'Hana2-Bold', fontSize: 40, color: COLORS.textDark },
+  amountZero:             { color: '#D1D5DB' },
   cursor:                 { width: 2.5, height: 40, backgroundColor: COLORS.primary, marginHorizontal: 2, borderRadius: 2 },
-  clearBtn:               { marginLeft: 10, width: 34, height: 34, borderRadius: 17, borderWidth: 1.5, borderColor: '#D0D0D0', alignItems: 'center', justifyContent: 'center' },
-  clearBtnText:           { fontSize: 20, color: '#999', lineHeight: 24, marginTop: -1 },
-  convertedText:          { fontFamily: 'Hana2-Regular', fontSize: 14, color: COLORS.primary, textAlign: 'center', marginBottom: 32 },
-  chipRow:                { flexDirection: 'row', gap: 10, justifyContent: 'center' },
-  chip:                   { borderWidth: 1.5, borderColor: COLORS.border, borderRadius: 50, paddingHorizontal: 14, paddingVertical: 8 },
-  chipText:               { fontFamily: 'Hana2-Regular', fontSize: 13, color: COLORS.textDark },
+  clearBtn:               { marginLeft: 12, width: 32, height: 32, borderRadius: 16, backgroundColor: '#F3F4F6', alignItems: 'center', justifyContent: 'center' },
+  clearBtnText:           { fontSize: 18, color: '#9CA3AF', lineHeight: 22 },
+  convertedText:          { fontFamily: 'Hana2-Regular', fontSize: 14, color: '#6B7280', marginBottom: 16, marginTop: 2 },
+  chipRow:                { flexDirection: 'row', gap: 8, justifyContent: 'flex-start', flexWrap: 'wrap' },
+  estimatedText:          { fontFamily: 'Hana2-Regular', fontSize: 13, color: '#6B7280', textAlign: 'center', marginTop: 32 },
+  chip:                   { backgroundColor: '#F2F9F6', borderRadius: 50, paddingHorizontal: 16, paddingVertical: 8 },
+  chipText:               { fontFamily: 'Hana2-Medium', fontSize: 13, color: '#008465' },
   bottom:                 { paddingHorizontal: 24, paddingBottom: 32, gap: 12 },
-  chargeBtn:              { backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 18, alignItems: 'center' },
-  chargeBtnDisabled:      { opacity: 0.5 },
+  chargeBtn:              { backgroundColor: '#00B488', borderRadius: 14, paddingVertical: 18, alignItems: 'center' },
+  chargeBtnDisabled:      { opacity: 0.4 },
   chargeBtnText:          { fontFamily: 'Hana2-Bold', fontSize: 16, color: COLORS.white },
   helpText:               { fontFamily: 'Hana2-Regular', fontSize: 13, color: COLORS.textGray, textAlign: 'center' },
   hiddenInput:            { position: 'absolute', width: 1, height: 1, opacity: 0 },
