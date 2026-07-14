@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   chip:                   { backgroundColor: '#F2F9F6', borderRadius: 50, paddingHorizontal: 16, paddingVertical: 8 },
   chipText:               { fontFamily: 'Hana2-Medium', fontSize: 13, color: '#008465' },
   bottom:                 { paddingHorizontal: 24, paddingBottom: 32, gap: 12 },
-  chargeBtn:              { backgroundColor: '#00B488', borderRadius: 14, paddingVertical: 18, alignItems: 'center' },
+  chargeBtn:              { backgroundColor: '#05A68B', borderRadius: 14, paddingVertical: 18, alignItems: 'center' },
   chargeBtnDisabled:      { opacity: 0.4 },
   chargeBtnText:          { fontFamily: 'Hana2-Bold', fontSize: 16, color: COLORS.white },
   helpText:               { fontFamily: 'Hana2-Regular', fontSize: 13, color: COLORS.textGray, textAlign: 'center' },

@@ -5,14 +5,18 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  ScrollView,
   Image,
 } from 'react-native';
 import { COLORS } from '../constants/colors';
 import BottomTabBar from '../components/BottomTabBar';
-import appStore from '../utils/appStore';
 
-export default function DutchPayScreen({ navigation }) {
-  const balance = appStore.balance;
+export default function DutchPayScreen({ navigation, route }) {
+  const {
+    totalAmount = 55500,
+    people = 3,
+    perPerson = 18500,
+  } = route.params ?? {};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -25,8 +29,16 @@ export default function DutchPayScreen({ navigation }) {
         <View style={{ width: 40 }} />
       </View>
 
+      <ScrollView showsVerticalScrollIndicator={false}>
+
       {/* QR 영역 */}
       <View style={styles.qrSection}>
+        {/* 정산 정보 컨테이너 */}
+        <View style={styles.settlementCard}>
+          <Text style={styles.settlementSubtitle}>총 ₩{totalAmount.toLocaleString('ko-KR')} · {people}명</Text>
+          <Text style={styles.settlementAmount}>인당 ₩{perPerson.toLocaleString('ko-KR')}</Text>
+        </View>
+
         <View style={styles.qrFrame}>
           <View style={[styles.corner, styles.cornerTL]} />
           <View style={[styles.corner, styles.cornerTR]} />
@@ -38,18 +50,7 @@ export default function DutchPayScreen({ navigation }) {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.qrCaption}>QR코드를 스캔하세요</Text>
-      </View>
-
-      {/* 잔액 */}
-      <View style={styles.balanceRow}>
-        <View>
-          <Text style={styles.balanceLabel}>현재 잔액</Text>
-          <Text style={styles.balanceAmount}>₩ {balance.toLocaleString('ko-KR')}</Text>
-        </View>
-        <TouchableOpacity style={styles.chargeBtn} onPress={() => navigation.navigate('Charge')}>
-          <Text style={styles.chargeBtnText}>충전하기</Text>
-        </TouchableOpacity>
+        <Text style={styles.qrCaption}>친구에게 이 QR을 보여주면 정산 금액이 바로 송금돼요 💸</Text>
       </View>
 
       {/* 최근 정산 내역 */}
@@ -57,7 +58,9 @@ export default function DutchPayScreen({ navigation }) {
         <Text style={styles.historyTitle}>최근 정산 내역</Text>
       </View>
 
-      <BottomTabBar activeTab="home" navigation={navigation} balance={balance} />
+      </ScrollView>
+
+      <BottomTabBar activeTab="home" navigation={navigation} />
     </SafeAreaView>
   );
 }
@@ -87,7 +90,29 @@ const styles = StyleSheet.create({
   qrSection: {
     backgroundColor: '#fff',
     alignItems: 'center',
-    paddingVertical: 36,
+    paddingTop: 24,
+    paddingBottom: 28,
+  },
+  settlementCard: {
+    backgroundColor: '#F0FAF6',
+    borderRadius: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 24,
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginBottom: 24,
+    gap: 8,
+  },
+  settlementSubtitle: {
+    fontFamily: 'Hana2-Medium',
+    fontSize: 16,
+    color: '#6B7280',
+  },
+  settlementAmount: {
+    fontFamily: 'Hana2-Bold',
+    fontSize: 30,
+    color: '#008465',
+    letterSpacing: -1,
   },
   qrFrame: {
     width: 220,
@@ -103,7 +128,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 28,
     height: 28,
-    borderColor: COLORS.primary,
+    borderColor: '#05A68B',
   },
   cornerTL: { top: 0, left: 0,  borderTopWidth: 3, borderLeftWidth: 3,  borderTopLeftRadius: 4 },
   cornerTR: { top: 0, right: 0, borderTopWidth: 3, borderRightWidth: 3, borderTopRightRadius: 4 },
@@ -112,55 +137,51 @@ const styles = StyleSheet.create({
   qrCaption: {
     marginTop: 16,
     fontFamily: 'Hana2-Regular',
-    fontSize: 13,
-    color: COLORS.textGray,
-  },
-
-  balanceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    marginTop: 10,
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-  },
-  balanceLabel: {
-    fontFamily: 'Hana2-Regular',
-    fontSize: 12,
-    color: COLORS.textGray,
-    marginBottom: 4,
-  },
-  balanceAmount: {
-    fontFamily: 'Hana2-Bold',
-    fontSize: 28,
-    color: COLORS.primary,
-    letterSpacing: -1,
-  },
-  chargeBtn: {
-    backgroundColor: COLORS.primaryLight,
-    borderRadius: 12,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  chargeBtnText: {
-    fontFamily: 'Hana2-Bold',
     fontSize: 14,
-    color: COLORS.primary,
+    color: '#4B5563',
+    textAlign: 'center',
+    paddingHorizontal: 24,
+    lineHeight: 21,
   },
 
   historyCard: {
     backgroundColor: '#fff',
-    marginTop: 10,
+    marginTop: 16,
     marginHorizontal: 16,
     borderRadius: 16,
     paddingHorizontal: 20,
     paddingVertical: 20,
-    flex: 1,
+    marginBottom: 16,
   },
   historyTitle: {
     fontFamily: 'Hana2-Medium',
     fontSize: 14,
     color: COLORS.textGray,
+    marginBottom: 14,
+  },
+  historyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+  },
+  historyDivider: {
+    height: 1,
+    backgroundColor: '#F0F0F0',
+  },
+  historyName: {
+    fontFamily: 'Hana2-Regular',
+    fontSize: 14,
+    color: COLORS.textDark,
+  },
+  historyAmountDone: {
+    fontFamily: 'Hana2-Bold',
+    fontSize: 14,
+    color: '#05A68B',
+  },
+  historyAmountPending: {
+    fontFamily: 'Hana2-Medium',
+    fontSize: 14,
+    color: '#9CA3AF',
   },
 });

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import pendingCharge from '../utils/pendingCharge';
 import appStore from '../utils/appStore';
@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   ScrollView,
   Image,
+  Animated,
 } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
@@ -28,6 +29,52 @@ function parseTravelDate(str) {
 
 export default function HomeScreen({ navigation, route }) {
   const userName = '朴必鎬';
+
+  const float1 = useRef(new Animated.Value(0)).current;
+  const float2 = useRef(new Animated.Value(0)).current;
+  const float3 = useRef(new Animated.Value(0)).current;
+  const float5 = useRef(new Animated.Value(0)).current;
+  const float6 = useRef(new Animated.Value(0)).current;
+  const rot1   = useRef(new Animated.Value(0)).current;
+  const rot2   = useRef(new Animated.Value(0)).current;
+  const rot3   = useRef(new Animated.Value(0)).current;
+  const rot5   = useRef(new Animated.Value(0)).current;
+  const rot6   = useRef(new Animated.Value(0)).current;
+
+  const rotate1 = rot1.interpolate({ inputRange: [-1, 1], outputRange: ['-10deg', '10deg'] });
+  const rotate2 = rot2.interpolate({ inputRange: [-1, 1], outputRange: ['-8deg',  '8deg']  });
+  const rotate3 = rot3.interpolate({ inputRange: [-1, 1], outputRange: ['-12deg', '12deg'] });
+  const rotate5 = rot5.interpolate({ inputRange: [-1, 1], outputRange: ['-6deg',  '14deg'] });
+  const rotate6 = rot6.interpolate({ inputRange: [-1, 1], outputRange: ['-15deg', '5deg']  });
+
+  useEffect(() => {
+    const makeFloat = (val, duration, amplitude) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(val, { toValue: -amplitude, duration, useNativeDriver: true }),
+          Animated.timing(val, { toValue: amplitude * 0.3, duration: duration * 0.6, useNativeDriver: true }),
+          Animated.timing(val, { toValue: 0, duration: duration * 0.4, useNativeDriver: true }),
+        ])
+      );
+    const makeRotate = (val, duration) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(val, { toValue: 1,  duration,             useNativeDriver: true }),
+          Animated.timing(val, { toValue: -1, duration: duration * 1.3, useNativeDriver: true }),
+          Animated.timing(val, { toValue: 0,  duration: duration * 0.5, useNativeDriver: true }),
+        ])
+      );
+    const anims = [
+      makeFloat(float1, 2800, 18), makeFloat(float2, 2200, 14),
+      makeFloat(float3, 2500, 10),
+      makeFloat(float5, 3000, 16), makeFloat(float6, 2400, 12),
+      makeRotate(rot1, 2000), makeRotate(rot2, 2300),
+      makeRotate(rot3, 1700),
+      makeRotate(rot5, 2800), makeRotate(rot6, 1900),
+    ];
+    anims.forEach(a => a.start());
+    return () => anims.forEach(a => a.stop());
+  }, []);
 
   const [departDate, setDepartDate] = useState(() => appStore.departDate);
   const [returnDate, setReturnDate] = useState(() => appStore.returnDate);
@@ -70,20 +117,44 @@ export default function HomeScreen({ navigation, route }) {
 
   return (
     <View style={{ flex: 1 }}>
+
+      {/* ── 레이어 0: 그라디언트 배경 ── */}
       <LinearGradient
         colors={['#059669', '#34D399']}
         start={{ x: 0.1, y: 0 }}
         end={{ x: 0.9, y: 0.6 }}
         style={StyleSheet.absoluteFill}
       />
+
       {/* 배경 태극 문양 워터마크 */}
       <Svg width={320} height={320} viewBox="0 0 200 200" style={styles.bgPattern}>
-        {/* 태극 원형 외곽 */}
         <Path d="M100 10 A90 90 0 1 1 99.999 10 Z" stroke="rgba(255,255,255,0.07)" strokeWidth={1.5} fill="none" />
-        {/* 태극 S-curve */}
         <Path d="M100 10 A45 45 0 0 1 100 100 A45 45 0 0 0 100 190 A90 90 0 0 1 100 10 Z" fill="rgba(255,255,255,0.05)" />
       </Svg>
-    <SafeAreaView style={styles.container}>
+
+      {/* ── 레이어 1: 개별 클로버 오브젝트 (부유 애니메이션) ── */}
+      <View style={styles.cloverBg} pointerEvents="none">
+        <Animated.View style={[styles.clover1, { transform: [{ translateY: float1 }, { rotate: rotate1 }] }]}>
+          <Image source={require('../../assets/clover.png')} style={styles.cloverImg} blurRadius={2} resizeMode="contain" />
+        </Animated.View>
+        <Animated.View style={[styles.clover2, { transform: [{ translateY: float2 }, { rotate: rotate2 }] }]}>
+          <Image source={require('../../assets/clover.png')} style={styles.cloverImg} resizeMode="contain" />
+        </Animated.View>
+        <Animated.View style={[styles.clover3, { transform: [{ translateY: float3 }, { rotate: rotate3 }] }]}>
+          <Image source={require('../../assets/clover.png')} style={styles.cloverImg} resizeMode="contain" />
+        </Animated.View>
+        {/* 우측 중간 */}
+        <Animated.View style={[styles.clover5, { transform: [{ translateY: float5 }, { rotate: rotate5 }] }]}>
+          <Image source={require('../../assets/clover.png')} style={styles.cloverImg} resizeMode="contain" />
+        </Animated.View>
+        {/* 좌하단 */}
+        <Animated.View style={[styles.clover6, { transform: [{ translateY: float6 }, { rotate: rotate6 }] }]}>
+          <Image source={require('../../assets/clover.png')} style={styles.cloverImg} blurRadius={1} resizeMode="contain" />
+        </Animated.View>
+      </View>
+
+      {/* ── 레이어 2: 메인 컨텐츠 ── */}
+    <SafeAreaView style={[styles.container, { zIndex: 2 }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
@@ -169,7 +240,7 @@ export default function HomeScreen({ navigation, route }) {
             <Text style={styles.actionBtnText}>QR 결제</Text>
           </TouchableOpacity>
           <View style={styles.actionDivider} />
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('DutchPay')}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('DutchPaySetup')}>
             <Svg width={15} height={15} viewBox="0 0 24 24" fill="none" style={{ marginRight: 5 }}>
               <Path d="M4 6h16M4 12h10M4 18h7" stroke={COLORS.primary} strokeWidth={2} strokeLinecap="round" />
             </Svg>
@@ -220,7 +291,9 @@ export default function HomeScreen({ navigation, route }) {
 
       </ScrollView>
     </SafeAreaView>
-    <BottomTabBar activeTab="home" navigation={navigation} balance={balance} />
+    <View style={{ zIndex: 10 }}>
+      <BottomTabBar activeTab="home" navigation={navigation} balance={balance} />
+    </View>
     </View>
   );
 }
@@ -234,7 +307,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: -40,
     top: 20,
-    opacity: 1,
     zIndex: 0,
   },
   header: {
@@ -355,7 +427,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   dDayBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#0E9F80',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -416,7 +488,7 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   chargeBtn: {
-    backgroundColor: '#00B488',
+    backgroundColor: '#0E9F80',
     borderRadius: 9999,
     height: 44,
     width: '85%',
@@ -427,7 +499,7 @@ const styles = StyleSheet.create({
   chargeBtnText: {
     fontFamily: 'Hana2-Bold',
     fontSize: 14,
-    color: COLORS.white,
+    color: '#FFFFFF',
     letterSpacing: 0.3,
   },
   progressBar: {
@@ -492,7 +564,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   scheduleBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#0E9F80',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
@@ -501,7 +573,7 @@ const styles = StyleSheet.create({
   scheduleBtnText: {
     fontFamily: 'Hana2-Bold',
     fontSize: 15,
-    color: COLORS.white,
+    color: '#FFFFFF',
   },
   nearbySection: {
     marginHorizontal: 16,
@@ -581,5 +653,58 @@ const styles = StyleSheet.create({
   nearbyBadgeText: {
     fontFamily: 'Hana2-Bold',
     fontSize: 12,
+  },
+
+  cloverBg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+  cloverImg: {
+    width: '100%',
+    height: '100%',
+  },
+  clover1: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    left: -40,
+    top: '25%',
+    opacity: 0.45,
+  },
+  clover2: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    right: -20,
+    top: '15%',
+    opacity: 0.65,
+  },
+  clover3: {
+    position: 'absolute',
+    width: 80,
+    height: 80,
+    right: '10%',
+    bottom: '20%',
+    opacity: 0.55,
+  },
+  clover5: {
+    position: 'absolute',
+    width: 130,
+    height: 130,
+    right: -30,
+    top: '42%',
+    opacity: 0.6,
+  },
+  clover6: {
+    position: 'absolute',
+    width: 110,
+    height: 110,
+    left: -25,
+    bottom: '22%',
+    opacity: 0.55,
   },
 });

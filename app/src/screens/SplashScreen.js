@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Path } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
 
 export default function SplashScreen({ navigation }) {
@@ -12,10 +13,18 @@ export default function SplashScreen({ navigation }) {
         end={{ x: 1, y: 1 }}
         style={styles.container}
       >
+        {/* 배경 태극 문양 워터마크 */}
+        <View style={styles.bgPattern} pointerEvents="none">
+          <Svg width={320} height={320} viewBox="0 0 200 200">
+            <Path d="M100 10 A90 90 0 1 1 99.999 10 Z" stroke="rgba(0,100,70,0.12)" strokeWidth={1.5} fill="none" />
+            <Path d="M100 10 A45 45 0 0 1 100 100 A45 45 0 0 0 100 190 A90 90 0 0 1 100 10 Z" fill="rgba(0,100,70,0.07)" />
+          </Svg>
+        </View>
+
         {/* 중앙 캐릭터 */}
         <View style={styles.centerContent}>
           <Image source={require('../../assets/walking.png')} style={styles.character} resizeMode="contain" />
-          <Text style={styles.appTitle}>HANA EZPZ</Text>
+          <Image source={require('../../assets/main-title.png')} style={styles.mainTitle} resizeMode="contain" />
           <Text style={styles.appSubtitle}>Korea Travel Wallet</Text>
           <Text style={styles.tapHint}>tap anywhere to start</Text>
         </View>
@@ -64,23 +73,28 @@ const styles = StyleSheet.create({
     right: -8,
     bottom: '17%',
   },
+  bgPattern: {
+    position: 'absolute',
+    right: -40,
+    top: 20,
+    zIndex: 0,
+  },
   centerContent: {
     alignItems: 'center',
   },
   character: {
-    width: 160,
-    height: 160,
-    marginBottom: 16,
+    width: 200,
+    height: 200,
+    marginBottom: 20,
   },
-  appTitle: {
-    fontFamily: 'Hana2-Bold',
-    fontSize: 28,
-    color: '#004D40',
-    letterSpacing: 1,
+  mainTitle: {
+    width: 300,
+    height: 82,
+    marginBottom: 8,
   },
   appSubtitle: {
     fontFamily: 'Hana2-Regular',
-    fontSize: 14,
+    fontSize: 17,
     color: '#004D40',
     letterSpacing: 0.5,
     marginTop: 4,

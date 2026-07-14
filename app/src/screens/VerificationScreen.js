@@ -4,16 +4,19 @@ import {Text} from 'react-native';
 import { COLORS } from '../constants/colors';
 import AnimatedButton from '../components/AnimatedButton';
 
-const SHADOW_LAYERS = Array.from({ length: 15 }, (_, i) => {
-  const t = i / 14;
+const SHADOW_LAYERS = Array.from({ length: 10 }, (_, i) => {
+  const t = i / 9;
   return {
-    width:   Math.round(110 - t * 80),
-    height:  Math.round(22  - t * 16),
-    opacity: 0.01 + t * 0.08,
+    width:   Math.round(130 - t * 80),
+    height:  Math.round(16  - t * 8),
+    opacity: 0.018 + t * 0.038,
   };
 });
 
-const AUTH_STEPS = ['여권 스캔', '안면 인식'];
+const AUTH_STEPS = [
+  { label: '여권 스캔', sub: '빛 번짐이 없는 곳에서 촬영해 주세요.' },
+  { label: '안면 인식', sub: '카메라를 정면으로 바라봐 주세요.' },
+];
 
 export default function VerificationScreen({ navigation }) {
   const floatAnim = useRef(new Animated.Value(0)).current;
@@ -40,10 +43,25 @@ export default function VerificationScreen({ navigation }) {
         onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
       />
 
+      {/* 진행 단계 인디케이터 */}
+      <View style={styles.progressContainer}>
+        <View style={[styles.progressBar, styles.progressActive, { marginRight: 6 }]} />
+        <View style={[styles.progressBar, styles.progressInactive, { marginRight: 6 }]} />
+        <View style={[styles.progressBar, styles.progressInactive]} />
+      </View>
+
       <View style={styles.content}>
+
+        {/* 타이틀 */}
+        <View style={styles.titleSection}>
+          <Text style={styles.titleSub}>안전한 이용을 위해</Text>
+          <Text style={styles.titleMain}>본인인증을 시작할게요</Text>
+        </View>
+
+        {/* 자물쇠 캐릭터 */}
         <View style={styles.imageWrapper}>
           <Animated.Image
-            source={require('../../assets/secure.png')}
+            source={require('../../assets/locker-star.png')}
             style={[styles.image, { transform: [{ translateY: floatAnim }] }]}
           />
           <View style={styles.shadowContainer}>
@@ -52,15 +70,18 @@ export default function VerificationScreen({ navigation }) {
             ))}
           </View>
         </View>
-        <Text style={{fontFamily : 'Hana2-Medium', fontSize : 22}}>본인인증을 진행할게요.</Text>
 
+        {/* 스텝 카드 */}
         <View style={styles.methodList}>
-          {AUTH_STEPS.map((label, i) => (
-            <View key={i} style={styles.methodItem}>
+          {AUTH_STEPS.map((step, i) => (
+            <View key={i} style={styles.stepCard}>
               <View style={styles.stepNum}>
                 <Text style={styles.stepNumText}>{i + 1}</Text>
               </View>
-              <Text style={styles.methodLabel}>{label}</Text>
+              <View style={styles.stepTextCol}>
+                <Text style={styles.methodLabel}>{step.label}</Text>
+                <Text style={styles.stepSub}>{step.sub}</Text>
+              </View>
             </View>
           ))}
         </View>
@@ -83,18 +104,74 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.white,
   },
+  backBtn: {
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    alignSelf: 'flex-start',
+  },
+  backBtnText: {
+    fontSize: 32,
+    color: COLORS.textDark,
+    lineHeight: 34,
+  },
+  hiddenSkip: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 80,
+    height: 80,
+  },
+
+  progressContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  progressBar: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+  },
+  progressActive: {
+    backgroundColor: '#008465',
+  },
+  progressInactive: {
+    backgroundColor: '#E5E7EB',
+  },
+
   content: {
+    flex: 1,
+    paddingTop: 8,
+  },
+
+  titleSection: {
+    alignItems: 'center',
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  titleSub: {
+    fontFamily: 'Hana2-Medium',
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  titleMain: {
+    fontFamily: 'Hana2-Bold',
+    fontSize: 24,
+    color: '#111827',
+    textAlign: 'center',
+    marginTop: 6,
+  },
+
+  imageWrapper: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 32,
-  },
-  imageWrapper: {
-    alignItems: 'center',
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 180,
+    height: 180,
     resizeMode: 'contain',
     backfaceVisibility: 'hidden',
   },
@@ -106,67 +183,63 @@ const styles = StyleSheet.create({
   },
   shadowLayer: {
     position: 'absolute',
-    borderRadius: 50,
-    backgroundColor: '#000',
+    borderRadius: 100,
+    backgroundColor: '#6B7280',
   },
-  title: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: COLORS.textDark,
-    textAlign: 'center',
-  },
-  backBtn: {
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    alignSelf: 'flex-start',
-  },
-  backBtnText: {
-    fontSize: 32,
-    color: COLORS.textDark,
-    lineHeight: 34,
-  },
+
   methodList: {
     gap: 12,
-    marginTop: 24,
+    width: '90%',
+    alignSelf: 'center',
+    paddingBottom: 20,
   },
-  methodItem: {
+  stepCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    backgroundColor: '#F2FAF7',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#EBF5F3',
+    padding: 20,
+    gap: 16,
+  },
+  stepTextCol: {
+    flex: 1,
+    gap: 6,
+  },
+  stepSub: {
+    fontFamily: 'Hana2-Regular',
+    fontSize: 13,
+    color: '#4B5563',
+    lineHeight: 19,
   },
   stepNum: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     borderWidth: 1.5,
     borderColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepNumText: {
-    fontFamily: 'Hana2-Medium',
-    fontSize: 12,
+    fontFamily: 'Hana2-Bold',
+    fontSize: 15,
     color: COLORS.primary,
-    lineHeight: 14,
+    lineHeight: 17,
   },
   methodLabel: {
-    fontFamily: 'Hana2-Regular',
-    fontSize: 15,
+    fontFamily: 'Hana2-Bold',
+    fontSize: 18,
     color: COLORS.textDark,
   },
-  hiddenSkip: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 80,
-    height: 80,
-  },
+
   bottom: {
     paddingHorizontal: 24,
     paddingBottom: 32,
   },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#05A68B',
     borderRadius: 14,
     paddingVertical: 18,
     alignItems: 'center',

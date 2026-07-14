@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,19 @@ import {
   SafeAreaView,
   ScrollView,
   Image,
+  Animated,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
+
+const SHADOW_LAYERS = Array.from({ length: 10 }, (_, i) => {
+  const t = i / 9;
+  return {
+    width:   Math.round(130 - t * 80),
+    height:  Math.round(16  - t * 8),
+    opacity: 0.018 + t * 0.038,
+  };
+});
 
 const BENEFIT_DATA = {
   insurance: {
@@ -56,6 +66,19 @@ export default function BenefitDetailScreen({ route, navigation }) {
   const { benefitId } = route.params ?? {};
   const data = BENEFIT_DATA[benefitId];
 
+  const floatAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, { toValue: 1, duration: 1700, useNativeDriver: true }),
+        Animated.timing(floatAnim, { toValue: 0, duration: 1700, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
+  const translateY = floatAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -15] });
+
   if (!data) {
     return (
       <View style={{ flex: 1, backgroundColor: COLORS.white, alignItems: 'center', justifyContent: 'center' }}>
@@ -89,7 +112,18 @@ export default function BenefitDetailScreen({ route, navigation }) {
           {/* Hero */}
           <View style={styles.heroSection}>
             <Text style={styles.mainTitle}>{data.mainTitle}</Text>
-            <Image source={data.image} style={styles.heroImage} resizeMode="contain" />
+            <View style={styles.imageContainer}>
+              <Animated.Image
+                source={data.image}
+                style={[styles.heroImage, { transform: [{ translateY }] }]}
+                resizeMode="contain"
+              />
+              <View style={styles.shadowContainer}>
+                {SHADOW_LAYERS.map((layer, i) => (
+                  <View key={i} style={[styles.shadowLayer, { width: layer.width, height: layer.height, opacity: layer.opacity }]} />
+                ))}
+              </View>
+            </View>
           </View>
 
           {/* Info Table */}
@@ -132,9 +166,12 @@ const styles = StyleSheet.create({
 
   scroll:        { paddingBottom: 32 },
 
-  heroSection:   { alignItems: 'center', paddingHorizontal: 24, paddingTop: 40, paddingBottom: 8 },
-  mainTitle:     { fontFamily: 'Hana2-Bold', fontSize: 22, color: COLORS.textDark, textAlign: 'center', lineHeight: 34, marginBottom: 36 },
-  heroImage:     { width: 220, height: 220 },
+  heroSection:    { alignItems: 'center', paddingHorizontal: 24, paddingTop: 40, paddingBottom: 8 },
+  mainTitle:      { fontFamily: 'Hana2-Bold', fontSize: 22, color: COLORS.textDark, textAlign: 'center', lineHeight: 34, marginBottom: 36 },
+  imageContainer:  { alignItems: 'center' },
+  heroImage:       { width: 220, height: 220 },
+  shadowContainer: { alignItems: 'center', justifyContent: 'center', marginTop: 8, height: 18 },
+  shadowLayer:     { position: 'absolute', borderRadius: 100, backgroundColor: '#6B7280' },
 
   infoCard:      { marginHorizontal: 20, marginTop: 28, backgroundColor: '#F9FAFB', borderRadius: 18, paddingVertical: 8, paddingHorizontal: 20 },
   infoRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 15 },
@@ -143,8 +180,8 @@ const styles = StyleSheet.create({
   infoDivider:   { height: 1, backgroundColor: '#EBEBEB' },
 
   bottom:        { flexDirection: 'row', paddingHorizontal: 20, paddingBottom: 28, paddingTop: 12, gap: 10, backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: '#F0F0F0' },
-  closeBtn:      { flex: 1, backgroundColor: '#EBF5F3', borderRadius: 14, paddingVertical: 18, alignItems: 'center' },
-  closeBtnText:  { fontFamily: 'Hana2-Bold', fontSize: 15, color: '#008465' },
-  actionBtn:     { flex: 2, backgroundColor: '#008465', borderRadius: 14, paddingVertical: 18, alignItems: 'center' },
+  closeBtn:      { flex: 1, backgroundColor: '#E6F7F3', borderRadius: 14, paddingVertical: 18, alignItems: 'center' },
+  closeBtnText:  { fontFamily: 'Hana2-Bold', fontSize: 15, color: '#05A68B' },
+  actionBtn:     { flex: 2, backgroundColor: '#05A68B', borderRadius: 14, paddingVertical: 18, alignItems: 'center' },
   actionBtnText: { fontFamily: 'Hana2-Bold', fontSize: 15, color: COLORS.white },
 });

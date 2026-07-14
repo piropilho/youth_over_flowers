@@ -11,6 +11,7 @@ import {
   Dimensions,
   Animated,
 } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -217,13 +218,20 @@ export default function TravelPlanScreen({ navigation, route }) {
             onPress={openCalendar}
             activeOpacity={0.7}
           >
-            <Text style={[styles.inputText, !departDate && styles.inputPlaceholder]}>
+            <Text style={[styles.inputText, !departDate && styles.inputPlaceholder, { flex: 1 }]}>
               {departDate || 'YYYY - MM - DD'}
             </Text>
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Path d="M6 9l6 6 6-6" stroke={departDate ? COLORS.primary : '#9CA3AF'} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
           </TouchableOpacity>
 
           <View style={styles.arrowRow}>
-            <Text style={styles.arrow}>↓</Text>
+            <View style={styles.arrowCircle}>
+              <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+                <Path d="M6 9l6 6 6-6" stroke={COLORS.primary} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </View>
           </View>
 
           <Text style={styles.label}>오는 날</Text>
@@ -232,9 +240,12 @@ export default function TravelPlanScreen({ navigation, route }) {
             onPress={openReturnCalendar}
             activeOpacity={0.7}
           >
-            <Text style={[styles.inputText, !returnDate && styles.inputPlaceholder]}>
+            <Text style={[styles.inputText, !returnDate && styles.inputPlaceholder, { flex: 1 }]}>
               {returnDate || 'YYYY - MM - DD'}
             </Text>
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Path d="M6 9l6 6 6-6" stroke={returnDate ? COLORS.primary : '#9CA3AF'} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
           </TouchableOpacity>
         </View>
 
@@ -354,27 +365,34 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 18,
     paddingVertical: 16,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   inputDone: {
     borderColor: COLORS.primary,
     backgroundColor: COLORS.primaryLight,
   },
   inputText: {
-    fontFamily: 'Hana2-Regular',
-    fontSize: 15,
-    color: COLORS.textDark,
+    fontFamily: 'Hana2-Bold',
+    fontSize: 18,
+    color: '#111827',
   },
   inputPlaceholder: {
+    fontFamily: 'Hana2-Regular',
+    fontSize: 15,
     color: COLORS.textGray,
   },
   arrowRow: {
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 10,
   },
-  arrow: {
-    fontSize: 20,
-    color: COLORS.textGray,
+  arrowCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#EBF5F3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bottom: {
     paddingHorizontal: 24,
@@ -390,7 +408,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   confirmBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#008485',
     borderRadius: 14,
     paddingVertical: 18,
     alignItems: 'center',

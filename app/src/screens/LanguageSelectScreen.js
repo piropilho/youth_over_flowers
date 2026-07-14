@@ -221,13 +221,13 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   radioSelected: {
-    borderColor: COLORS.primary,
+    borderColor: '#00B488',
   },
   radioDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#00B488',
   },
   bottomArea: {
     paddingHorizontal: 24,
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   continueButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#05A68B',
     borderRadius: 14,
     height: 56,
     alignItems: 'center',

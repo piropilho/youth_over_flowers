@@ -19,6 +19,7 @@ import BenefitDetailScreen from '../screens/BenefitDetailScreen';
 import QRPayScreen from '../screens/QRPayScreen';
 import CouponScreen from '../screens/CouponScreen';
 import DutchPayScreen from '../screens/DutchPayScreen';
+import DutchPaySetupScreen from '../screens/DutchPaySetupScreen';
 import MyCardScreen from '../screens/MyCardScreen';
 import MapScreen from '../screens/MapScreen';
 
@@ -45,6 +46,7 @@ export default function AppNavigator() {
         <Stack.Screen name="QRPay" component={QRPayScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }} />
         <Stack.Screen name="Coupon" component={CouponScreen} options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="Map" component={MapScreen} options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="DutchPaySetup" component={DutchPaySetupScreen} options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="DutchPay" component={DutchPayScreen} options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="MyCard" component={MyCardScreen} options={{ animation: 'slide_from_right' }} />
       </Stack.Navigator>
