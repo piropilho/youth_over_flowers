@@ -13,6 +13,7 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
+      "icon": "./assets/1024-icon.png",
       "bundleIdentifier": "com.hana.ezpz",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,

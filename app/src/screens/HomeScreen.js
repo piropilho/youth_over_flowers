@@ -115,6 +115,10 @@ export default function HomeScreen({ navigation, route }) {
     return Math.ceil((depart - today) / (1000 * 60 * 60 * 24));
   }, [departDate]);
 
+  useEffect(() => {
+    if (dDay !== null && dDay <= 0) setIsInKorea(true);
+  }, [dDay]);
+
   return (
     <View style={{ flex: 1 }}>
 
@@ -158,16 +162,27 @@ export default function HomeScreen({ navigation, route }) {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        {/* 좌측: 로고 */}
+        {/* 좌측: 로고 + 듀얼 탭 토글 */}
         <View style={styles.headerLeft}>
           <TouchableOpacity onPress={() => setIsInKorea(v => !v)} activeOpacity={1}>
             <Image source={require('../../assets/hana-logo-white-remove.png')} style={styles.logoIcon} resizeMode="contain" />
           </TouchableOpacity>
-          {isInKorea && (
-            <View style={styles.inKoreaBadge}>
-              <Text style={styles.inKoreaBadgeText}>KOREA</Text>
-            </View>
-          )}
+          <View style={styles.travelToggle}>
+            <TouchableOpacity
+              style={[styles.toggleTab, !isInKorea && styles.toggleTabActive]}
+              onPress={() => setIsInKorea(false)}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.toggleTabText, !isInKorea && styles.toggleTabTextActive]}>여행 준비</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.toggleTab, isInKorea && styles.toggleTabActive]}
+              onPress={() => setIsInKorea(true)}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.toggleTabText, isInKorea && styles.toggleTabTextActive]}>여행 중</Text>
+            </TouchableOpacity>
+          </View>
         </View>
         {/* 우측: 벨 */}
         <View style={styles.headerRight}>
@@ -184,7 +199,13 @@ export default function HomeScreen({ navigation, route }) {
         <View style={styles.welcomeRow}>
           <View style={styles.welcomeTextCol}>
             <Text style={styles.welcomeName}>{userName} 님,</Text>
-            <Text style={styles.welcomeTitle}>한국 여행을{'\n'}환영해요!</Text>
+            <Text style={styles.welcomeTitle}>
+              {isInKorea
+                ? `한국 여행을\n환영해요!`
+                : dDay !== null
+                  ? `한국 여행 D-${dDay}\n설레는 준비 시작!`
+                  : `한국 여행을\n준비해봐요!`}
+            </Text>
             <Text style={styles.welcomeSub}>Welcome to Korea</Text>
           </View>
           <Image
@@ -343,15 +364,27 @@ const styles = StyleSheet.create({
   bellBtn: {
     padding: 4,
   },
-  inKoreaBadge: {
-    backgroundColor: COLORS.primary,
+  travelToggle: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.18)',
     borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    padding: 3,
   },
-  inKoreaBadgeText: {
+  toggleTab: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 17,
+  },
+  toggleTabActive: {
+    backgroundColor: '#0E9F80',
+  },
+  toggleTabText: {
+    fontFamily: 'Hana2-Medium',
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.60)',
+  },
+  toggleTabTextActive: {
     fontFamily: 'Hana2-Bold',
-    fontSize: 12,
     color: '#fff',
   },
   welcomeSection: {

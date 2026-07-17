@@ -10,6 +10,9 @@ import PassportScanScreen from '../screens/PassportScanScreen';
 import PassportConfirmScreen from '../screens/PassportConfirmScreen';
 import FaceScanScreen from '../screens/FaceScanScreen';
 import FaceScanCameraScreen from '../screens/FaceScanCameraScreen';
+import FaceScanDemoScreen from '../screens/FaceScanDemoScreen';
+import PassportScanDemoScreen from '../screens/PassportScanDemoScreen';
+import PassportConfirmDemoScreen from '../screens/PassportConfirmDemoScreen';
 import VerificationCompleteScreen from '../screens/VerificationCompleteScreen';
 import HomeScreen from '../screens/HomeScreen';
 import TravelPlanScreen from '../screens/TravelPlanScreen';
@@ -37,6 +40,9 @@ export default function AppNavigator() {
         <Stack.Screen name="PassportConfirm" component={PassportConfirmScreen} />
         <Stack.Screen name="FaceScan" component={FaceScanScreen} />
         <Stack.Screen name="FaceScanCamera" component={FaceScanCameraScreen} />
+        <Stack.Screen name="FaceScanDemo" component={FaceScanDemoScreen} />
+        <Stack.Screen name="PassportScanDemo" component={PassportScanDemoScreen} />
+        <Stack.Screen name="PassportConfirmDemo" component={PassportConfirmDemoScreen} />
         <Stack.Screen name="VerificationComplete" component={VerificationCompleteScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="TravelPlan" component={TravelPlanScreen} options={{ animation: 'slide_from_right' }} />

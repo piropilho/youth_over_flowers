@@ -90,7 +90,7 @@ export default function VerificationScreen({ navigation }) {
       <View style={styles.bottom}>
         <AnimatedButton
           style={styles.button}
-          onPress={() => navigation.navigate('PassportScan')}
+          onPress={() => navigation.navigate('PassportScanDemo')}
         >
           <Text style={styles.buttonText}>여권 스캔하기</Text>
         </AnimatedButton>

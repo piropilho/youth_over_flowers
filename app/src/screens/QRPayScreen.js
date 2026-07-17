@@ -26,10 +26,6 @@ export default function QRPayScreen({ navigation, route }) {
   const balance = route.params?.balance ?? 0;
 
   useEffect(() => {
-    if (!permission?.granted) requestPermission();
-  }, []);
-
-  useEffect(() => {
     Animated.loop(
       Animated.sequence([
         Animated.timing(scanAnim, { toValue: 1, duration: 2200, useNativeDriver: true }),

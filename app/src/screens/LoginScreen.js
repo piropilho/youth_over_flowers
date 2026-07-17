@@ -47,8 +47,9 @@ export default function LoginScreen({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="PASSWORD"
-          placeholderTextColor={COLORS  .textGray}
+          placeholderTextColor={COLORS.textGray}
           secureTextEntry
+          textContentType="oneTimeCode"
           value={password}
           onChangeText={setPassword}
           returnKeyType="go"

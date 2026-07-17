@@ -19,6 +19,12 @@ export default function FaceScanScreen({ navigation }) {
           <Text style={styles.backBtnText}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>본인 인증 2/2</Text>
+        {/* 데모용 히든 버튼 — 우상단 투명 영역 */}
+        <TouchableOpacity
+          style={styles.hiddenDemo}
+          activeOpacity={1}
+          onPress={() => navigation.navigate('FaceScanDemo')}
+        />
       </View>
 
       <View style={styles.body}>
@@ -180,5 +186,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textGray,
     textAlign: 'center',
+  },
+  hiddenDemo: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 80,
+    height: 80,
   },
 });

@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, Dimensions } from 'react-native';
 import { COLORS } from '../constants/colors';
 import AnimatedButton from '../components/AnimatedButton';
+
+const ILLUST_HEIGHT = Math.round(Dimensions.get('window').height * 0.26);
 
 const VERIFIED_ITEMS = ['여권 인증', '안면 인식'];
 
@@ -20,7 +22,7 @@ export default function VerificationCompleteScreen({ navigation }) {
         <Text style={styles.title}>본인 인증이 완료되었어요!</Text>
         <Text style={styles.subtitle}>eKYC verification completed</Text>
 
-        <View style={styles.spacer}>
+        <View style={styles.illustWrap}>
           <Image
             source={require('../../assets/yaaaaaho.png')}
             style={styles.illustration}
@@ -29,7 +31,6 @@ export default function VerificationCompleteScreen({ navigation }) {
         </View>
 
         {/* Info Card */}
-        <View style={{ height: 24 }} />
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardLabel}>인증 정보</Text>
@@ -43,8 +44,6 @@ export default function VerificationCompleteScreen({ navigation }) {
             </View>
           ))}
         </View>
-
-        <View style={styles.spacer} />
       </View>
 
       {/* Bottom */}
@@ -94,34 +93,42 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 40,
+    paddingTop: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 26,
     fontFamily: 'Hana2-Bold',
     color: COLORS.textDark,
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 13,
     fontFamily: 'Hana2-Regular',
     color: COLORS.textGray,
-    marginBottom: 30,
+    marginBottom: 24,
+    textAlign: 'center',
   },
-  spacer: {
-    flex: 1,
+  illustWrap: {
+    width: '100%',
+    height: ILLUST_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 24,
   },
   illustration: {
-    width: '70%',
-    height: '100%',
+    width: '75%',
+    height: ILLUST_HEIGHT,
   },
   card: {
     borderWidth: 1,
     borderColor: '#E8E8E8',
     borderRadius: 14,
     overflow: 'hidden',
+    width: '100%',
+    marginBottom: 4,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -129,6 +136,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 18,
     paddingVertical: 14,
+    backgroundColor: '#F2F9F6',
   },
   cardLabel: {
     fontFamily: 'Hana2-Bold',
@@ -138,7 +146,7 @@ const styles = StyleSheet.create({
   cardStatus: {
     fontFamily: 'Hana2-Bold',
     fontSize: 13,
-    color: COLORS.primary,
+    color: '#05A68B',
   },
   divider: {
     height: 1,
@@ -154,12 +162,14 @@ const styles = StyleSheet.create({
   checkMark: {
     fontFamily: 'Hana2-Bold',
     fontSize: 13,
-    color: COLORS.primary,
+    color: '#05A68B',
+    lineHeight: 20,
   },
   cardRowText: {
     fontFamily: 'Hana2-Regular',
     fontSize: 14,
     color: COLORS.textDark,
+    lineHeight: 20,
   },
   bottom: {
     paddingHorizontal: 24,
@@ -167,7 +177,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#05A68B',
     borderRadius: 14,
     paddingVertical: 18,
     alignItems: 'center',

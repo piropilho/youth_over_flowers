@@ -166,7 +166,7 @@ export default function MapScreen({ navigation }) {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color="#05A68B" />
         <Text style={styles.loadingText}>주변 골목상권을 찾는 중...</Text>
       </View>
     );
@@ -211,7 +211,7 @@ export default function MapScreen({ navigation }) {
               returnKeyType="search"
             />
             <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-              <Path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke={COLORS.primary} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="#05A68B" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </View>
 
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   loadingText:  { marginTop: 12, fontFamily: 'Hana2-Regular', fontSize: 14, color: COLORS.textGray },
   errorText:    { fontFamily: 'Hana2-Bold', fontSize: 16, color: COLORS.textDark, marginBottom: 6 },
   errorSub:     { fontFamily: 'Hana2-Regular', fontSize: 13, color: COLORS.textGray, marginBottom: 20 },
-  backBtnPlain: { paddingVertical: 10, paddingHorizontal: 24, backgroundColor: COLORS.primary, borderRadius: 10 },
+  backBtnPlain: { paddingVertical: 10, paddingHorizontal: 24, backgroundColor: '#05A68B', borderRadius: 10 },
   backBtnText:  { fontFamily: 'Hana2-Bold', fontSize: 14, color: COLORS.white },
 
   topSafe: {
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  chipActive:      { backgroundColor: COLORS.primary },
+  chipActive:      { backgroundColor: '#05A68B' },
   chipDot:         { width: 7, height: 7, borderRadius: 3.5 },
   chipLabel:       { fontFamily: 'Hana2-Medium', fontSize: 13, color: COLORS.textDark },
   chipLabelActive: { color: COLORS.white },
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   sheetTitle: { fontFamily: 'Hana2-Bold', fontSize: 16, color: COLORS.textDark },
   ctaBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#05A68B',
     borderRadius: 14,
     paddingVertical: 18,
     alignItems: 'center',
@@ -496,8 +496,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   recChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: '#05A68B',
+    borderColor: '#05A68B',
   },
   recChipLabel: {
     fontFamily: 'Hana2-Medium',
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
     color: COLORS.textDark,
   },
   recTag: {
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: 'rgba(5, 166, 139, 0.12)',
     borderRadius: 6,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
   recTagText: {
     fontFamily: 'Hana2-Medium',
     fontSize: 10,
-    color: COLORS.primary,
+    color: '#05A68B',
   },
   recCardDesc: {
     fontFamily: 'Hana2-Regular',
