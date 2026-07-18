@@ -90,7 +90,7 @@ export default function BottomTabBar({ activeTab = 'home', navigation, balance =
       <TouchableOpacity
         style={styles.centerBtn}
         activeOpacity={0.85}
-        onPress={() => activeTab === 'qr' ? navigation.goBack() : navigation.navigate('QRPay', { balance })}
+        onPress={() => activeTab === 'qr' ? navigation.goBack() : navigation.navigate('QRPayDemo', { balance })}
       >
         {activeTab === 'qr' ? (
           <Svg width={32} height={32} viewBox="0 0 24 24" fill="none">

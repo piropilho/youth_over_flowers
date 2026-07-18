@@ -6,6 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  Image,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
@@ -13,7 +14,7 @@ import { COLORS } from '../constants/colors';
 const BENEFITS = [
   {
     id: 'insurance',
-    emoji: '🛡️',
+    image: require('../../assets/shield.png'),
     title: '여행자 보험',
     tag: '무료 가입',
     tagColor: '#008465',
@@ -23,7 +24,7 @@ const BENEFITS = [
   },
   {
     id: 'esim',
-    emoji: '📶',
+    image: require('../../assets/esim.png'),
     title: 'eSIM 3GB 데이터',
     tag: '즉시 지급',
     tagColor: '#2563EB',
@@ -33,7 +34,7 @@ const BENEFITS = [
   },
   {
     id: 'lounge',
-    emoji: '✈️',
+    image: require('../../assets/lounge.png'),
     title: '공항 라운지',
     tag: '프리미엄',
     tagColor: '#7C3AED',
@@ -43,7 +44,7 @@ const BENEFITS = [
   },
   {
     id: 'smallbiz',
-    emoji: '🛍️',
+    image: require('../../assets/store.png'),
     title: '골목상권 쿠폰',
     tag: '3% 즉시 할인',
     tagColor: '#D97706',
@@ -143,7 +144,10 @@ export default function CouponScreen({ navigation }) {
                 </View>
 
                 {/* Icon */}
-                <Text style={styles.cardEmoji}>{b.emoji}</Text>
+                {b.image
+                  ? <Image source={b.image} style={styles.cardImage} resizeMode="contain" />
+                  : <Text style={styles.cardEmoji}>{b.emoji}</Text>
+                }
 
                 {/* Title */}
                 <Text style={styles.cardTitle} numberOfLines={2}>{b.title}</Text>
@@ -208,6 +212,7 @@ const styles = StyleSheet.create({
   tagText:          { fontFamily: 'Hana2-Bold', fontSize: 11, overflow: 'hidden' },
 
   cardEmoji:        { fontSize: 44, textAlign: 'center', marginBottom: 14 },
+  cardImage:        { width: 88, height: 88, alignSelf: 'center', marginBottom: 14 },
 
   cardTitle:        { fontFamily: 'Hana2-Bold', fontSize: 15, color: COLORS.textDark, lineHeight: 22, marginBottom: 6 },
   cardDesc:         { fontFamily: 'Hana2-Regular', fontSize: 12, color: '#6B7280', lineHeight: 18 },

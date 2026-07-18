@@ -42,9 +42,9 @@ const CAT_COLOR = { '식당': '#FF9500', '카페': '#8B572A', '시장': '#34C759
 const REC_CATEGORIES = ['전통시장', '로컬 맛집', '전통있는 가게'];
 
 const REC_SHOPS = [
-  { id: 1, img: require('../../assets/fish.png'),  name: '가락시장 OO수산',       cat: '전통시장', desc: '이전에 검색하신 로컬 맛집 취향과 딱 맞아요', walk: 3  },
-  { id: 2, img: require('../../assets/ramen.png'), name: '방이 시장 OO국수',      cat: '전통시장', desc: '로컬 맛집을 좋아하는 여행객에게 인기에요',   walk: 8  },
-  { id: 3, img: require('../../assets/tteok.png'), name: '방이 시장 ㅁㅁ 떡볶이', cat: '전통시장', desc: '한국의 길거리 음식을 즐기기 딱이에요',      walk: 10 },
+  { id: 1, img: require('../../assets/fish.png'),  name: '가락시장 대박수산',   cat: '전통시장', desc: '이전에 검색하신 로컬 맛집 취향과 딱 맞아요', walk: 3 },
+  { id: 2, img: require('../../assets/ramen.png'), name: '방이시장 원조국수',   cat: '전통시장', desc: '로컬 맛집을 좋아하는 여행객에게 인기에요',   walk: 7 },
+  { id: 3, img: require('../../assets/tteok.png'), name: '방이시장 시장떡볶이', cat: '전통시장', desc: '한국의 길거리 음식을 즐기기 딱이에요',      walk: 9 },
 ];
 
 function buildMapHTML(lat, lng, shops) {

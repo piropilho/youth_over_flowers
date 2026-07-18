@@ -25,7 +25,7 @@ const BENEFIT_DATA = {
   insurance: {
     screenTitle: '여행자 보험',
     mainTitle: '여행자 보험\n하나손해보험에서 보장해줘요!',
-    image: require('../../assets/insurance.png'),
+    image: require('../../assets/ins-promotion.png'),
     info: [
       { label: '조건',        value: '선불 충전 완료' },
       { label: '혜택',        value: '하나손해보험 외국인 여행자 보험' },
@@ -38,7 +38,7 @@ const BENEFIT_DATA = {
   esim: {
     screenTitle: 'eSIM',
     mainTitle: '한국 어디서든\n빠른 인터넷을 무료로 써요!',
-    image: require('../../assets/clock.png'),
+    image: require('../../assets/esim-promotion.png'),
     info: [
       { label: '조건',        value: '선불 충전 완료' },
       { label: '혜택',        value: '3GB eSIM 제공' },

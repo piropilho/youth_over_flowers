@@ -20,6 +20,7 @@ import ChargeScreen from '../screens/ChargeScreen';
 import ChargeSuccessScreen from '../screens/ChargeSuccessScreen';
 import BenefitDetailScreen from '../screens/BenefitDetailScreen';
 import QRPayScreen from '../screens/QRPayScreen';
+import QRPayDemoScreen from '../screens/QRPayDemoScreen';
 import CouponScreen from '../screens/CouponScreen';
 import DutchPayScreen from '../screens/DutchPayScreen';
 import DutchPaySetupScreen from '../screens/DutchPaySetupScreen';
@@ -50,6 +51,7 @@ export default function AppNavigator() {
         <Stack.Screen name="ChargeSuccess" component={ChargeSuccessScreen} options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="BenefitDetail" component={BenefitDetailScreen} options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="QRPay" component={QRPayScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }} />
+        <Stack.Screen name="QRPayDemo" component={QRPayDemoScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }} />
         <Stack.Screen name="Coupon" component={CouponScreen} options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="Map" component={MapScreen} options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="DutchPaySetup" component={DutchPaySetupScreen} options={{ animation: 'slide_from_right' }} />

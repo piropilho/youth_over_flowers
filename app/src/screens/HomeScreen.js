@@ -251,7 +251,7 @@ export default function HomeScreen({ navigation, route }) {
           </TouchableOpacity>
         </View>
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('QRPay', { balance })}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('QRPayDemo', { balance })}>
             <Svg width={15} height={15} viewBox="0 0 24 24" fill="none" style={{ marginRight: 5 }}>
               <Rect x="3" y="3" width="7" height="7" rx="1" stroke={COLORS.primary} strokeWidth={2} />
               <Rect x="14" y="3" width="7" height="7" rx="1" stroke={COLORS.primary} strokeWidth={2} />
